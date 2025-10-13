@@ -22,7 +22,19 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('main');
   const [userId, setUserId] = useState<string>('');
   const [telegramUser, setTelegramUser] = useState<any>(null);
+  const [telegramId, setTelegramId] = useState<number>(0);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Query for existing user by telegramId (only when telegramId is set)
+  const { data: userData } = db.useQuery({
+    users: {
+      $: {
+        where: {
+          telegramId: telegramId
+        }
+      }
+    }
+  });
 
   useEffect(() => {
     // Initialize Telegram WebApp
@@ -37,7 +49,7 @@ function App() {
       if (user) {
         console.log('Telegram user:', user);
         setTelegramUser(user);
-        initializeUser(user);
+        setTelegramId(Number(user.id));
       } else {
         // Fallback for testing outside Telegram
         console.log('No Telegram user, using fallback');
@@ -48,7 +60,7 @@ function App() {
           username: 'testuser'
         };
         setTelegramUser(fallbackUser);
-        initializeUser(fallbackUser);
+        setTelegramId(Number(fallbackUser.id));
       }
     } else {
       // Fallback for development
@@ -60,22 +72,37 @@ function App() {
         username: 'testuser'
       };
       setTelegramUser(fallbackUser);
-      initializeUser(fallbackUser);
+      setTelegramId(Number(fallbackUser.id));
     }
   }, []);
 
-  const initializeUser = async (tgUser: any) => {
+  // Handle user initialization when userData is loaded
+  useEffect(() => {
+    if (telegramId === 0 || !telegramUser || isInitialized) return;
+
+    console.log('User data loaded:', userData);
+
+    if (userData?.users && userData.users.length > 0) {
+      // User exists, use their ID
+      const existingUser = userData.users[0];
+      console.log('Found existing user:', existingUser);
+      setUserId(existingUser.id);
+      setIsInitialized(true);
+    } else if (userData !== undefined) {
+      // Query completed and no user found, create new one
+      console.log('Creating new user...');
+      createNewUser(telegramUser);
+    }
+  }, [userData, telegramId, telegramUser, isInitialized]);
+
+  const createNewUser = async (tgUser: any) => {
     try {
-      const telegramId = tgUser.id;
       const newUserId = id();
       const referralCode = generateReferralCode();
 
-      console.log('Initializing user:', telegramId);
-
-      // Create or update user
       await db.transact([
         db.tx.users[newUserId].update({
-          telegramId: Number(telegramId),
+          telegramId: Number(tgUser.id),
           username: tgUser.username || '',
           firstName: tgUser.first_name || '',
           lastName: tgUser.last_name || '',
@@ -88,12 +115,11 @@ function App() {
         })
       ]);
 
-      console.log('User created:', newUserId);
+      console.log('New user created:', newUserId);
       setUserId(newUserId);
       setIsInitialized(true);
     } catch (error) {
-      console.error('Error initializing user:', error);
-      // Set a temporary user ID for testing
+      console.error('Error creating user:', error);
       const tempId = `temp_${Date.now()}`;
       setUserId(tempId);
       setIsInitialized(true);
