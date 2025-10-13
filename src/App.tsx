@@ -46,9 +46,12 @@ function App() {
       tg.setBackgroundColor('#000000');
 
       const user = tg.initDataUnsafe?.user;
+      const startParam = tg.initDataUnsafe?.start_param; // Get referral code from start_param
+
       if (user) {
         console.log('Telegram user:', user);
-        setTelegramUser(user);
+        console.log('Start param (referral code):', startParam);
+        setTelegramUser({ ...user, referralCodeUsed: startParam || '' });
         setTelegramId(Number(user.id));
       } else {
         // Fallback for testing outside Telegram
@@ -99,7 +102,14 @@ function App() {
     try {
       const newUserId = id();
       const referralCode = generateReferralCode();
+      const usedReferralCode = tgUser.referralCodeUsed || '';
 
+      // Initial balance: 50 stars if referred, 0 otherwise
+      const initialBalance = usedReferralCode ? 50 : 0;
+
+      console.log('Creating user with referral code:', usedReferralCode);
+
+      // Create the new user
       await db.transact([
         db.tx.users[newUserId].update({
           telegramId: Number(tgUser.id),
@@ -107,15 +117,21 @@ function App() {
           firstName: tgUser.first_name || '',
           lastName: tgUser.last_name || '',
           photoUrl: tgUser.photo_url || '',
-          balance: 0,
+          balance: initialBalance,
           totalClicks: 0,
           referralCode: referralCode,
-          referredBy: '',
+          referredBy: usedReferralCode,
           createdAt: Date.now()
         })
       ]);
 
       console.log('New user created:', newUserId);
+
+      // If user was referred, award bonus to referrer
+      if (usedReferralCode) {
+        await awardReferralBonus(usedReferralCode, newUserId);
+      }
+
       setUserId(newUserId);
       setIsInitialized(true);
     } catch (error) {
@@ -123,6 +139,28 @@ function App() {
       const tempId = `temp_${Date.now()}`;
       setUserId(tempId);
       setIsInitialized(true);
+    }
+  };
+
+  const awardReferralBonus = async (referrerCode: string, newUserId: string) => {
+    try {
+      console.log('Processing referral with code:', referrerCode);
+
+      // Store the referral code in the referral record
+      // The actual bonus will be awarded by checking this later
+      const referralId = id();
+      await db.transact([
+        db.tx.referrals[referralId].update({
+          referrerId: referrerCode, // Store code here, will resolve to user ID later
+          referredUserId: newUserId,
+          reward: 100,
+          timestamp: Date.now()
+        })
+      ]);
+
+      console.log('Referral recorded! Bot will process the bonus.');
+    } catch (error) {
+      console.error('Error recording referral:', error);
     }
   };
 

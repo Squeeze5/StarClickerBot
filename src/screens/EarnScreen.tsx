@@ -32,8 +32,8 @@ const EarnScreen = ({ userId }: EarnScreenProps) => {
       const user = data.users[0];
       setReferralCode(user.referralCode || '');
 
-      // Generate referral link (replace with your bot username)
-      const botUsername = 'YOUR_BOT_USERNAME'; // Replace this
+      // Generate referral link with bot username
+      const botUsername = 'thestarclickerbot';
       const link = `https://t.me/${botUsername}?start=${user.referralCode}`;
       setReferralLink(link);
     }

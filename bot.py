@@ -111,55 +111,67 @@ class InstantDBClient:
             return result['users'][0] if len(result['users']) > 0 else None
         return None
 
-    def award_referral_bonus(self, referrer_id: str, new_user_id: str):
-        """Award bonus to both referrer and new user"""
-        transactions = []
+    def process_pending_referrals(self):
+        """Process referrals where referrerId is still a code instead of user ID"""
+        try:
+            # Get all referrals
+            query = {"referrals": {}}
+            result = self.query(query)
 
-        # Get referrer data
-        referrer = self.get_user_by_telegram_id(int(referrer_id.split('_')[1]))
-        if not referrer:
-            logger.error(f"Referrer not found: {referrer_id}")
-            return False
+            if not result or not result.get('referrals'):
+                return
 
-        # Award bonus to referrer
-        transactions.append({
-            "users": {
-                referrer['id']: {
-                    "balance": referrer.get('balance', 0) + REFERRER_REWARD
-                }
-            }
-        })
+            referrals = result['referrals']
 
-        # Get new user data
-        new_user = self.get_user_by_telegram_id(int(new_user_id.split('_')[1]))
-        if not new_user:
-            logger.error(f"New user not found: {new_user_id}")
-            return False
+            for referral in referrals:
+                referrer_id = referral.get('referrerId', '')
 
-        # Award bonus to new user
-        transactions.append({
-            "users": {
-                new_user['id']: {
-                    "balance": new_user.get('balance', 0) + NEW_USER_BONUS
-                }
-            }
-        })
+                # Check if referrerId looks like a referral code (short alphanumeric)
+                if len(referrer_id) <= 10 and referrer_id.isalnum() and referrer_id.isupper():
+                    logger.info(f"Processing pending referral with code: {referrer_id}")
 
-        # Create referral record
-        referral_id = f"referral_{referrer['id']}_{new_user['id']}_{int(time.time())}"
-        transactions.append({
-            "referrals": {
-                referral_id: {
-                    "referrerId": referrer['id'],
-                    "referredUserId": new_user['id'],
-                    "reward": REFERRER_REWARD,
-                    "timestamp": int(time.time() * 1000)
-                }
-            }
-        })
+                    # Find the user with this referral code
+                    referrer = self.get_user_by_referral_code(referrer_id)
 
-        result = self.transact(transactions)
-        return result is not None
+                    if referrer:
+                        new_user_id = referral.get('referredUserId')
+
+                        # Get new user data
+                        new_user_query = {
+                            "users": {
+                                "$": {"where": {"id": new_user_id}}
+                            }
+                        }
+                        new_user_result = self.query(new_user_query)
+                        new_user = new_user_result['users'][0] if new_user_result and new_user_result.get('users') else None
+
+                        if new_user:
+                            # Award bonuses
+                            transactions = []
+
+                            # Update referrer balance
+                            transactions.append({
+                                "users": {
+                                    referrer['id']: {
+                                        "balance": referrer.get('balance', 0) + REFERRER_REWARD
+                                    }
+                                }
+                            })
+
+                            # Update referral record with actual user ID
+                            transactions.append({
+                                "referrals": {
+                                    referral['id']: {
+                                        "referrerId": referrer['id']
+                                    }
+                                }
+                            })
+
+                            self.transact(transactions)
+                            logger.info(f"Referral processed! {referrer.get('firstName')} got {REFERRER_REWARD} stars")
+
+        except Exception as e:
+            logger.error(f"Error processing referrals: {e}")
 
 
 # Initialize InstantDB client
@@ -285,6 +297,12 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.error(f"Update {update} caused error {context.error}")
 
 
+async def check_referrals(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Periodic task to process pending referrals"""
+    logger.info("Checking for pending referrals...")
+    db.process_pending_referrals()
+
+
 def main() -> None:
     """Start the bot"""
     if not BOT_TOKEN:
@@ -301,6 +319,13 @@ def main() -> None:
 
     # Register error handler
     application.add_error_handler(error_handler)
+
+    # Set up job queue for periodic referral processing
+    job_queue = application.job_queue
+    if job_queue:
+        # Check for pending referrals every 30 seconds
+        job_queue.run_repeating(check_referrals, interval=30, first=10)
+        logger.info("Referral processing job scheduled")
 
     # Start the bot
     logger.info("Bot started successfully!")
