@@ -1,0 +1,236 @@
+.earn-screen {
+  padding: 30px 20px;
+  min-height: calc(100vh - 80px);
+}
+
+.earn-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.earn-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+}
+
+.earn-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.earnings-card {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.earnings-stat {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.earnings-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+
+.earnings-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.referral-section {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: -0.3px;
+}
+
+.referral-code-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.referral-code {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  padding: 16px 32px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(255, 214, 10, 0.2);
+}
+
+.referral-link-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.referral-link-input {
+  flex: 1;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+}
+
+.copy-button {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.copy-button:active {
+  transform: scale(0.95);
+  background: var(--bg-tertiary);
+}
+
+.share-button {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bg-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(255, 214, 10, 0.3);
+}
+
+.share-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(255, 214, 10, 0.3);
+}
+
+.rewards-section {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.reward-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reward-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reward-item:first-child {
+  padding-top: 0;
+}
+
+.reward-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.reward-text {
+  flex: 1;
+}
+
+.reward-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+}
+
+.reward-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.referrals-list {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.referral-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.referral-item:last-child {
+  margin-bottom: 0;
+}
+
+.referral-icon {
+  font-size: 24px;
+}
+
+.referral-info {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.referral-reward {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+@media (max-width: 400px) {
+  .earnings-card {
+    grid-template-columns: 1fr;
+  }
+}
