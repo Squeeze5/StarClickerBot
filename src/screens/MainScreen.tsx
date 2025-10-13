@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../db';
+import { id } from '@instantdb/react';
 import './MainScreen.css';
 
 interface MainScreenProps {
@@ -15,6 +16,7 @@ interface ClickAnimation {
 
 const MainScreen = ({ userId }: MainScreenProps) => {
   const [balance, setBalance] = useState(0);
+  const [totalClicks, setTotalClicks] = useState(0);
   const [clickAnimations, setClickAnimations] = useState<ClickAnimation[]>([]);
   const [animationId, setAnimationId] = useState(0);
 
@@ -29,17 +31,29 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
   useEffect(() => {
     if (data?.users && data.users.length > 0) {
-      setBalance(data.users[0].balance || 0);
+      const user = data.users[0];
+      setBalance(user.balance || 0);
+      setTotalClicks(user.totalClicks || 0);
+      console.log('User data loaded:', user);
     }
   }, [data]);
 
   const handleStarClick = async (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('No userId');
+      return;
+    }
+
+    console.log('Star clicked!');
 
     // Trigger Telegram vibration
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.HapticFeedback.impactOccurred('light');
+    if (tg && tg.HapticFeedback) {
+      try {
+        tg.HapticFeedback.impactOccurred('light');
+      } catch (err) {
+        console.log('Haptic feedback not available');
+      }
     }
 
     // Create click animation
@@ -61,25 +75,35 @@ const MainScreen = ({ userId }: MainScreenProps) => {
       setClickAnimations(prev => prev.filter(anim => anim.id !== newAnimation.id));
     }, 1000);
 
-    // Update balance in database
+    // Update balance immediately for better UX
     const newBalance = balance + 1;
+    const newTotalClicks = totalClicks + 1;
     setBalance(newBalance);
+    setTotalClicks(newTotalClicks);
 
-    await db.transact([
-      db.tx.users[userId].update({
-        balance: newBalance,
-        totalClicks: (data?.users[0]?.totalClicks || 0) + 1
-      })
-    ]);
+    try {
+      // Update user balance and clicks in database
+      await db.transact([
+        db.tx.users[userId].update({
+          balance: newBalance,
+          totalClicks: newTotalClicks
+        })
+      ]);
 
-    // Log click
-    await db.transact([
-      db.tx.clicks[`click_${Date.now()}_${Math.random()}`].update({
-        userId,
-        amount: 1,
-        timestamp: Date.now()
-      })
-    ]);
+      // Log individual click
+      const clickId = id();
+      await db.transact([
+        db.tx.clicks[clickId].update({
+          userId: userId,
+          amount: 1,
+          timestamp: Date.now()
+        })
+      ]);
+
+      console.log('Click saved to database');
+    } catch (error) {
+      console.error('Error saving click:', error);
+    }
   };
 
   return (
