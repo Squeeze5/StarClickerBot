@@ -77,3 +77,106 @@ body {
 .screen-container::-webkit-scrollbar-thumb:hover {
   background: var(--border-color);
 }
+
+/* Modern Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+  border-top: 1px solid rgba(255, 214, 10, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  transition: width 0.3s ease;
+}
+
+.nav-item.active::before {
+  width: 80%;
+}
+
+.nav-item:active {
+  transform: scale(0.92);
+}
+
+.nav-item.active {
+  color: var(--accent-color);
+  background: rgba(255, 214, 10, 0.08);
+}
+
+.nav-icon-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: grayscale(100%) brightness(0.7);
+}
+
+.nav-item.active .nav-icon-img {
+  filter: grayscale(0%) brightness(1.1) drop-shadow(0 0 8px rgba(255, 214, 10, 0.5));
+  transform: scale(1.15);
+}
+
+.nav-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.nav-item.active .nav-label {
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 214, 10, 0.3);
+}
+
+@media (max-width: 400px) {
+  .nav-item {
+    padding: 5px 2px;
+    gap: 1px;
+  }
+
+  .nav-icon-img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav-label {
+    font-size: 8px;
+  }
+}

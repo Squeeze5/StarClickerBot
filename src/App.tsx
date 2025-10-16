@@ -222,13 +222,13 @@ function App() {
         {renderScreen()}
       </div>
 
-      {/* New 6-tab navigation */}
+      {/* Modern 6-tab navigation with icons */}
       <nav className="bottom-nav">
         <button
           className={`nav-item ${currentScreen === 'main' ? 'active' : ''}`}
           onClick={() => handleNavClick('main')}
         >
-          <span className="nav-icon">⭐</span>
+          <img src="/icons/star.png" alt="Main" className="nav-icon-img" />
           <span className="nav-label">Main</span>
         </button>
 
@@ -236,7 +236,7 @@ function App() {
           className={`nav-item ${currentScreen === 'upgrades' ? 'active' : ''}`}
           onClick={() => handleNavClick('upgrades')}
         >
-          <span className="nav-icon">💪</span>
+          <img src="/icons/money-bag.png" alt="Upgrades" className="nav-icon-img" />
           <span className="nav-label">Upgrades</span>
         </button>
 
@@ -244,7 +244,7 @@ function App() {
           className={`nav-item ${currentScreen === 'skins' ? 'active' : ''}`}
           onClick={() => handleNavClick('skins')}
         >
-          <span className="nav-icon">🎨</span>
+          <img src="/icons/pumpkin-star.png" alt="Skins" className="nav-icon-img" />
           <span className="nav-label">Skins</span>
         </button>
 
@@ -252,7 +252,7 @@ function App() {
           className={`nav-item ${currentScreen === 'leaderboard' ? 'active' : ''}`}
           onClick={() => handleNavClick('leaderboard')}
         >
-          <span className="nav-icon">🏆</span>
+          <img src="/icons/friends.png" alt="Leaderboard" className="nav-icon-img" />
           <span className="nav-label">Leaders</span>
         </button>
 
@@ -260,7 +260,7 @@ function App() {
           className={`nav-item ${currentScreen === 'earn' ? 'active' : ''}`}
           onClick={() => handleNavClick('earn')}
         >
-          <span className="nav-icon">💰</span>
+          <img src="/icons/gift.png" alt="Earn" className="nav-icon-img" />
           <span className="nav-label">Earn</span>
         </button>
 
@@ -268,7 +268,7 @@ function App() {
           className={`nav-item ${currentScreen === 'profile' ? 'active' : ''}`}
           onClick={() => handleNavClick('profile')}
         >
-          <span className="nav-icon">👤</span>
+          <img src="/icons/user.png" alt="Profile" className="nav-icon-img" />
           <span className="nav-label">Profile</span>
         </button>
       </nav>

@@ -33,8 +33,8 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
   // Performance optimization: batch updates
   const pendingUpdatesRef = useRef<{balance: number, clicks: number} | null>(null);
-  const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const autoClickerRef = useRef<NodeJS.Timeout | null>(null);
+  const updateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoClickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Query user data
   const { data } = db.useQuery({
@@ -206,7 +206,8 @@ const MainScreen = ({ userId }: MainScreenProps) => {
               onError={(e) => {
                 // Fallback to emoji if image fails to load
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling!.style.display = 'block';
+                const nextEl = e.currentTarget.nextElementSibling as HTMLElement;
+                if (nextEl) nextEl.style.display = 'block';
               }}
             />
           ) : null}
@@ -237,7 +238,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
               transition={{ duration: 1, ease: 'easeOut' }}
             >
               <span className="particle-value">+{particle.value}</span>
-              <span className="particle-star">⭐</span>
+              <img src="/icons/star.png" alt="" className="particle-star-icon" />
             </motion.div>
           ))}
         </AnimatePresence>
