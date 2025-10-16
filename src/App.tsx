@@ -3,7 +3,9 @@ import { db } from './db';
 import MainScreen from './screens/MainScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EarnScreen from './screens/EarnScreen';
-import BottomNav from './components/BottomNav';
+import UpgradesScreen from './screens/UpgradesScreen';
+import SkinsScreen from './screens/SkinsScreen';
+import LeaderboardScreen from './screens/LeaderboardScreen';
 import './App.css';
 import { id } from '@instantdb/react';
 
@@ -16,7 +18,7 @@ declare global {
   }
 }
 
-type Screen = 'main' | 'profile' | 'earn';
+type Screen = 'main' | 'profile' | 'earn' | 'upgrades' | 'skins' | 'leaderboard';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('main');
@@ -121,7 +123,14 @@ function App() {
           totalClicks: 0,
           referralCode: referralCode,
           referredBy: usedReferralCode,
-          createdAt: Date.now()
+          createdAt: Date.now(),
+          // Initialize upgrades
+          clickPower: 1,
+          autoClickerLevel: 0,
+          multiplierLevel: 0,
+          // Initialize skins
+          currentSkin: 'default',
+          ownedSkins: ['default']
         })
       ]);
 
@@ -168,6 +177,15 @@ function App() {
     return Math.random().toString(36).substring(2, 10).toUpperCase();
   };
 
+  const handleNavClick = (screen: Screen) => {
+    // Trigger Telegram vibration
+    const tg = window.Telegram?.WebApp;
+    if (tg?.HapticFeedback) {
+      tg.HapticFeedback.selectionChanged();
+    }
+    setCurrentScreen(screen);
+  };
+
   const renderScreen = () => {
     if (!isInitialized || !userId) {
       return (
@@ -187,6 +205,12 @@ function App() {
         return <ProfileScreen userId={userId} telegramUser={telegramUser} />;
       case 'earn':
         return <EarnScreen userId={userId} />;
+      case 'upgrades':
+        return <UpgradesScreen userId={userId} />;
+      case 'skins':
+        return <SkinsScreen userId={userId} />;
+      case 'leaderboard':
+        return <LeaderboardScreen userId={userId} />;
       default:
         return <MainScreen userId={userId} />;
     }
@@ -197,7 +221,57 @@ function App() {
       <div className="screen-container">
         {renderScreen()}
       </div>
-      <BottomNav currentScreen={currentScreen} onScreenChange={setCurrentScreen} />
+
+      {/* New 6-tab navigation */}
+      <nav className="bottom-nav">
+        <button
+          className={`nav-item ${currentScreen === 'main' ? 'active' : ''}`}
+          onClick={() => handleNavClick('main')}
+        >
+          <span className="nav-icon">⭐</span>
+          <span className="nav-label">Main</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentScreen === 'upgrades' ? 'active' : ''}`}
+          onClick={() => handleNavClick('upgrades')}
+        >
+          <span className="nav-icon">💪</span>
+          <span className="nav-label">Upgrades</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentScreen === 'skins' ? 'active' : ''}`}
+          onClick={() => handleNavClick('skins')}
+        >
+          <span className="nav-icon">🎨</span>
+          <span className="nav-label">Skins</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentScreen === 'leaderboard' ? 'active' : ''}`}
+          onClick={() => handleNavClick('leaderboard')}
+        >
+          <span className="nav-icon">🏆</span>
+          <span className="nav-label">Leaders</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentScreen === 'earn' ? 'active' : ''}`}
+          onClick={() => handleNavClick('earn')}
+        >
+          <span className="nav-icon">💰</span>
+          <span className="nav-label">Earn</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentScreen === 'profile' ? 'active' : ''}`}
+          onClick={() => handleNavClick('profile')}
+        >
+          <span className="nav-icon">👤</span>
+          <span className="nav-label">Profile</span>
+        </button>
+      </nav>
     </div>
   );
 }

@@ -1,0 +1,244 @@
+.leaderboard-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  padding-bottom: 80px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #000000 0%, #1a0a2e 100%);
+}
+
+.leaderboard-header {
+  margin-bottom: 20px;
+}
+
+.leaderboard-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 16px 0;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.sort-button {
+  flex: 1;
+  padding: 10px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sort-button.active {
+  background: rgba(255, 214, 10, 0.2);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.sort-button:active {
+  transform: scale(0.95);
+}
+
+.user-rank-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 214, 10, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+  border: 2px solid var(--accent-color);
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.your-rank-label {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+.your-rank-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.leaderboard-entry.current-user {
+  background: rgba(255, 214, 10, 0.1);
+  border-color: rgba(255, 214, 10, 0.5);
+}
+
+.leaderboard-entry.top-three {
+  background: rgba(255, 214, 10, 0.05);
+  border-color: rgba(255, 214, 10, 0.3);
+}
+
+.entry-rank {
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rank-medal {
+  font-size: 28px;
+}
+
+.rank-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.entry-user {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.user-avatar,
+.user-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.user-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.user-avatar-placeholder img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.user-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.you-badge {
+  padding: 2px 8px;
+  background: var(--accent-color);
+  color: #000000;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.user-username {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.stat-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.stat-emoji {
+  font-size: 16px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-color);
+  min-width: 40px;
+  text-align: right;
+}
+
+.empty-leaderboard {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-leaderboard p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Scrollbar styling */
+.leaderboard-screen::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leaderboard-screen::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.leaderboard-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 214, 10, 0.3);
+  border-radius: 3px;
+}
+
+.leaderboard-screen::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 214, 10, 0.5);
+}

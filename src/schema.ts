@@ -29,6 +29,13 @@ export const schema = i.schema({
       referralCode: i.string().unique().indexed(),
       referredBy: i.string(),
       createdAt: i.number(),
+      // Upgrades (optional to support existing users)
+      clickPower: i.number().optional(), // Stars earned per click
+      autoClickerLevel: i.number().optional(), // Auto-clicker level
+      multiplierLevel: i.number().optional(), // Click multiplier level
+      // Skins (optional to support existing users)
+      currentSkin: i.string().optional(), // Currently equipped skin
+      ownedSkins: i.json().optional(), // Array of owned skin IDs
     }),
 
     // Clicks table - tracks individual click events
@@ -76,6 +83,8 @@ export const schema = i.schema({
       },
     },
   },
+
+  rooms: {},
 });
 
 // Type definitions for TypeScript
@@ -93,6 +102,13 @@ export type User = {
   referralCode: string;
   referredBy?: string;
   createdAt: number;
+  // Upgrades
+  clickPower?: number;
+  autoClickerLevel?: number;
+  multiplierLevel?: number;
+  // Skins
+  currentSkin?: string;
+  ownedSkins?: string[];
 };
 
 export type Click = {

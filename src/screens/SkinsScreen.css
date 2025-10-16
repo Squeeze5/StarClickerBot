@@ -1,0 +1,198 @@
+.skins-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  padding-bottom: 80px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #000000 0%, #1a0a2e 100%);
+}
+
+.skins-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.skins-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.skins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.skin-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 214, 10, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.skin-card.equipped {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(255, 214, 10, 0.3);
+}
+
+.skin-card.locked {
+  opacity: 0.6;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.skin-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.skin-image {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+.skin-emoji {
+  font-size: 64px;
+}
+
+.equipped-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--accent-color);
+  color: #000000;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.skin-info {
+  flex: 1;
+}
+
+.skin-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.skin-description {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.skin-footer {
+  display: flex;
+  justify-content: stretch;
+}
+
+.skin-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.skin-button.default,
+.skin-button.owned {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.skin-button.default:disabled,
+.skin-button.owned:disabled {
+  background: rgba(76, 175, 80, 0.3);
+  color: #76ff7a;
+  cursor: default;
+}
+
+.skin-button.purchase.can-afford {
+  background: linear-gradient(135deg, var(--accent-color) 0%, #ffa500 100%);
+  color: #000000;
+}
+
+.skin-button.purchase.can-afford:active {
+  transform: scale(0.95);
+}
+
+.skin-button.purchase.locked {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
+
+.skin-button:disabled {
+  cursor: not-allowed;
+}
+
+.skins-tip {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 214, 10, 0.1);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.skins-tip p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+  .skins-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .skin-emoji {
+    font-size: 48px;
+  }
+}
+
+/* Scrollbar styling */
+.skins-screen::-webkit-scrollbar {
+  width: 6px;
+}
+
+.skins-screen::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.skins-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 214, 10, 0.3);
+  border-radius: 3px;
+}
+
+.skins-screen::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 214, 10, 0.5);
+}

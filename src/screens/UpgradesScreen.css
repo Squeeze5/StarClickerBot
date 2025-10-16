@@ -1,0 +1,221 @@
+.upgrades-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  padding-bottom: 80px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #000000 0%, #1a0a2e 100%);
+}
+
+.upgrades-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.upgrades-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.balance-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.balance-icon,
+.button-icon,
+.sort-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.balance-emoji,
+.button-star,
+.sort-emoji {
+  font-size: 20px;
+}
+
+.balance-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.upgrades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upgrade-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 214, 10, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.upgrade-card.locked {
+  opacity: 0.6;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.upgrade-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.upgrade-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 214, 10, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.upgrade-icon img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.upgrade-info {
+  flex: 1;
+}
+
+.upgrade-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.upgrade-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.upgrade-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+}
+
+.upgrade-level,
+.upgrade-effect {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.level-label,
+.effect-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.level-value,
+.effect-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.upgrade-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.upgrade-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upgrade-button.can-afford {
+  background: linear-gradient(135deg, var(--accent-color) 0%, #ffa500 100%);
+  color: #000000;
+}
+
+.upgrade-button.can-afford:active {
+  transform: scale(0.95);
+}
+
+.upgrade-button.locked {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
+
+.upgrade-button.max-level {
+  background: rgba(76, 175, 80, 0.3);
+  color: #76ff7a;
+  cursor: default;
+}
+
+.upgrade-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.upgrades-tip {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 214, 10, 0.1);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.upgrades-tip p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+/* Scrollbar styling */
+.upgrades-screen::-webkit-scrollbar {
+  width: 6px;
+}
+
+.upgrades-screen::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.upgrades-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 214, 10, 0.3);
+  border-radius: 3px;
+}
+
+.upgrades-screen::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 214, 10, 0.5);
+}

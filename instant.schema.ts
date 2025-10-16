@@ -31,6 +31,13 @@ const _schema = i.schema({
       referralCode: i.string().unique().indexed(),   // Unique referral code
       referredBy: i.string(),                        // Referral code of who referred this user
       createdAt: i.number(),                         // Account creation timestamp
+      // Upgrades (optional to support existing users)
+      clickPower: i.number().optional(),                        // Stars earned per click
+      autoClickerLevel: i.number().optional(),                  // Auto-clicker upgrade level
+      multiplierLevel: i.number().optional(),                   // Click multiplier level
+      // Skins (optional to support existing users)
+      currentSkin: i.string().optional(),                       // Currently equipped skin ID
+      ownedSkins: i.json().optional(),                          // Array of owned skin IDs
     }),
 
     /**
@@ -90,6 +97,8 @@ const _schema = i.schema({
       },
     },
   },
+
+  rooms: {},
 });
 
 export default _schema;
