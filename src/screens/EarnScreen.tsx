@@ -182,7 +182,9 @@ const EarnScreen = ({ userId }: EarnScreenProps) => {
       <div className="rewards-section">
         <h3 className="section-title">How It Works</h3>
         <div className="reward-item">
-          <span className="reward-icon">👥</span>
+          <div className="reward-icon">
+            <img src={`${import.meta.env.BASE_URL}icons/friends.png`} alt="Invite Friends" />
+          </div>
           <div className="reward-text">
             <div className="reward-title">Invite Friends</div>
             <div className="reward-description">
@@ -191,7 +193,9 @@ const EarnScreen = ({ userId }: EarnScreenProps) => {
           </div>
         </div>
         <div className="reward-item">
-          <span className="reward-icon">⭐</span>
+          <div className="reward-icon">
+            <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Earn Rewards" />
+          </div>
           <div className="reward-text">
             <div className="reward-title">Earn Rewards</div>
             <div className="reward-description">
@@ -200,7 +204,9 @@ const EarnScreen = ({ userId }: EarnScreenProps) => {
           </div>
         </div>
         <div className="reward-item">
-          <span className="reward-icon">🎁</span>
+          <div className="reward-icon">
+            <img src={`${import.meta.env.BASE_URL}icons/gift.png`} alt="Bonus Stars" />
+          </div>
           <div className="reward-text">
             <div className="reward-title">Bonus Stars</div>
             <div className="reward-description">

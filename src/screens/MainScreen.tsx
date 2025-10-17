@@ -14,15 +14,22 @@ interface Particle {
   id: number;
   x: number;
   y: number;
-  value: number;
   angle: number; // Random angle for particle direction
   distance: number; // Random distance for particle travel
+}
+
+interface FloatingNumber {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
 }
 
 const MainScreen = ({ userId }: MainScreenProps) => {
   const [balance, setBalance] = useState(0);
   const [totalClicks, setTotalClicks] = useState(0);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [floatingNumbers, setFloatingNumbers] = useState<FloatingNumber[]>([]);
   const [particleId, setParticleId] = useState(0);
 
   // Upgrade states
@@ -52,9 +59,16 @@ const MainScreen = ({ userId }: MainScreenProps) => {
   useEffect(() => {
     if (data?.users && data.users.length > 0) {
       const user = data.users[0];
-      // Ensure all values are numbers, not functions
-      setBalance(Number(user.balance) || 0);
-      setTotalClicks(Number(user.totalClicks) || 0);
+
+      // CRITICAL FIX: Don't overwrite local state if we have pending updates
+      // This prevents the "stars going down then back up" bug during fast clicking
+      if (!pendingUpdatesRef.current) {
+        // Only update if there are no pending changes
+        setBalance(Number(user.balance) || 0);
+        setTotalClicks(Number(user.totalClicks) || 0);
+      }
+
+      // These are safe to always update as they don't change during clicking
       setClickPower(Number(user.clickPower) || 0);
       setMultiplierLevel(Number(user.multiplierLevel) || 0);
       setAutoClickerLevel(Number(user.autoClickerLevel) || 0);
@@ -178,6 +192,21 @@ const MainScreen = ({ userId }: MainScreenProps) => {
     // Calculate click value
     const clickValue = calculateClickValue(clickPower, multiplierLevel);
 
+    // Create a static floating number at click position
+    const floatingNumber: FloatingNumber = {
+      id: particleId,
+      x,
+      y,
+      value: clickValue
+    };
+
+    setFloatingNumbers(prev => [...prev, floatingNumber]);
+
+    // Remove floating number after fade out
+    setTimeout(() => {
+      setFloatingNumbers(prev => prev.filter(fn => fn.id !== floatingNumber.id));
+    }, 1000);
+
     // Create multiple mini particles that fly in different directions
     const numParticles = 5; // 5 mini stars per click
     const newParticles: Particle[] = [];
@@ -187,17 +216,16 @@ const MainScreen = ({ userId }: MainScreenProps) => {
       const distance = 60 + Math.random() * 40; // Random distance 60-100px
 
       newParticles.push({
-        id: particleId + i,
+        id: particleId + i + 1,
         x,
         y,
-        value: i === 0 ? clickValue : 0, // Only first particle shows value
         angle,
         distance
       });
     }
 
     setParticles(prev => [...prev, ...newParticles]);
-    setParticleId(prev => prev + numParticles);
+    setParticleId(prev => prev + numParticles + 1);
 
     // Remove particles after animation
     setTimeout(() => {
@@ -314,7 +342,41 @@ const MainScreen = ({ userId }: MainScreenProps) => {
           />
         </motion.div>
 
-        {/* Particle system - falling mini stars */}
+        {/* Floating numbers - static position, fade out */}
+        <AnimatePresence>
+          {floatingNumbers.map(num => (
+            <motion.div
+              key={`num-${num.id}`}
+              className="floating-number"
+              initial={{
+                opacity: 1,
+                x: num.x,
+                y: num.y - 30,
+                scale: 1
+              }}
+              animate={{
+                opacity: 0,
+                y: num.y - 60,
+                scale: 1.2
+              }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                pointerEvents: 'none',
+                color: '#ffd700',
+                fontWeight: 'bold',
+                fontSize: '24px',
+                textShadow: '0 0 10px rgba(255, 215, 0, 0.8)',
+                zIndex: 100
+              }}
+            >
+              +{num.value}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {/* Particle system - animated mini stars only */}
         <AnimatePresence>
           {particles.map(particle => {
             const endX = particle.x + Math.cos(particle.angle) * particle.distance;
@@ -322,7 +384,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
             return (
               <motion.div
-                key={particle.id}
+                key={`particle-${particle.id}`}
                 className="particle"
                 initial={{
                   opacity: 1,
@@ -342,11 +404,6 @@ const MainScreen = ({ userId }: MainScreenProps) => {
                 transition={{ duration: 0.8, ease: 'easeOut' }}
                 style={{ position: 'absolute', pointerEvents: 'none' }}
               >
-                {particle.value > 0 && (
-                  <span className="particle-value" style={{ position: 'absolute', top: -25, left: -10, whiteSpace: 'nowrap' }}>
-                    +{particle.value}
-                  </span>
-                )}
                 <img
                   src={`${import.meta.env.BASE_URL}icons/star.png`}
                   alt=""
