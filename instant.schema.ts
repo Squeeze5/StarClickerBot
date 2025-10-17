@@ -60,6 +60,19 @@ const _schema = i.schema({
       reward: i.number(),                            // Stars awarded to referrer
       timestamp: i.number(),                         // When the referral occurred
     }),
+
+    /**
+     * Activities Entity
+     * Tracks all user activities for recent activity feed
+     */
+    activities: i.entity({
+      userId: i.string().indexed(),                  // User who performed the activity
+      type: i.string(),                              // Activity type: 'upgrade', 'skin', 'referral', 'achievement'
+      description: i.string(),                       // Human-readable description
+      amount: i.number().optional(),                 // Stars spent/earned (optional)
+      timestamp: i.number(),                         // When the activity occurred
+      metadata: i.json().optional(),                 // Additional data (upgrade name, skin ID, etc.)
+    }),
   },
 
   links: {
@@ -94,6 +107,23 @@ const _schema = i.schema({
         on: 'referrals',
         has: 'one',
         label: 'referrer',
+      },
+    },
+
+    /**
+     * Link: User -> Activities
+     * A user has many activities
+     */
+    userActivities: {
+      forward: {
+        on: 'users',
+        has: 'many',
+        label: 'activities',
+      },
+      reverse: {
+        on: 'activities',
+        has: 'one',
+        label: 'user',
       },
     },
   },

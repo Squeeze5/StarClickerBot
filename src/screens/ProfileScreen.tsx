@@ -9,19 +9,20 @@ interface ProfileScreenProps {
 
 const ProfileScreen = ({ userId, telegramUser }: ProfileScreenProps) => {
   const [userData, setUserData] = useState<any>(null);
-  const [clickHistory, setClickHistory] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
 
-  // Query user data and clicks
+  // Query user data and activities
   const { data } = db.useQuery({
     users: {
       $: {
         where: { id: userId }
       }
     },
-    clicks: {
+    // @ts-ignore - activities entity will exist after schema update
+    activities: {
       $: {
         where: { userId },
-        limit: 10,
+        limit: 15,
         order: {
           serverCreatedAt: 'desc'
         }
@@ -33,8 +34,10 @@ const ProfileScreen = ({ userId, telegramUser }: ProfileScreenProps) => {
     if (data?.users && data.users.length > 0) {
       setUserData(data.users[0]);
     }
-    if (data?.clicks) {
-      setClickHistory(data.clicks);
+    // @ts-ignore - activities will exist after schema update
+    if (data?.activities) {
+      // @ts-ignore
+      setActivities(data.activities);
     }
   }, [data]);
 
@@ -95,20 +98,44 @@ const ProfileScreen = ({ userId, telegramUser }: ProfileScreenProps) => {
 
       <div className="info-section">
         <h3 className="section-title">Recent Activity</h3>
-        {clickHistory.length > 0 ? (
+        {activities.length > 0 ? (
           <div className="activity-list">
-            {clickHistory.map((click, index) => (
-              <div key={click.id || index} className="activity-item">
-                <span className="activity-icon">⭐</span>
-                <span className="activity-text">+{click.amount} Stars</span>
-                <span className="activity-time">
-                  {formatDate(click.timestamp)}
-                </span>
-              </div>
-            ))}
+            {activities.map((activity, index) => {
+              // Determine icon based on activity type
+              let icon = '📝';
+              let amountColor = '';
+
+              if (activity.type === 'upgrade') {
+                icon = '⬆️';
+                amountColor = 'expense';
+              } else if (activity.type === 'skin') {
+                icon = '🎨';
+                amountColor = 'expense';
+              } else if (activity.type === 'referral') {
+                icon = '🎁';
+                amountColor = 'income';
+              }
+
+              return (
+                <div key={activity.id || index} className="activity-item">
+                  <span className="activity-icon">{icon}</span>
+                  <div className="activity-details">
+                    <span className="activity-text">{activity.description}</span>
+                    {activity.amount && (
+                      <span className={`activity-amount ${amountColor}`}>
+                        {activity.amount > 0 ? '+' : ''}{activity.amount.toLocaleString()} ⭐
+                      </span>
+                    )}
+                  </div>
+                  <span className="activity-time">
+                    {formatDate(activity.timestamp)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="no-activity">No activity yet. Start clicking!</p>
+          <p className="no-activity">No activity yet. Start upgrading and collecting skins!</p>
         )}
       </div>
     </div>

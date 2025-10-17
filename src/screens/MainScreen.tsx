@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../db';
+import { id } from '@instantdb/react';
 import { calculateClickValue, calculateAutoClickerRate } from '../config/upgrades';
 import { SKINS, getSkin, userOwnsSkin, getPurchasableSkins } from '../config/skins';
 import './MainScreen.css';
@@ -247,12 +248,23 @@ const MainScreen = ({ userId }: MainScreenProps) => {
     try {
       const newBalance = balance - skin.cost;
       const newOwnedSkins = [...ownedSkins, skinId];
+      const activityId = id();
 
       await db.transact([
         db.tx.users[userId].update({
           balance: newBalance,
           ownedSkins: newOwnedSkins,
           currentSkin: skinId
+        }),
+        // Log activity - will be added when schema is pushed
+        // @ts-ignore - activities entity will exist after schema update
+        db.tx.activities[activityId].update({
+          userId: userId,
+          type: 'skin',
+          description: `Purchased ${skin.name}`,
+          amount: -skin.cost,
+          timestamp: Date.now(),
+          metadata: { skinId: skinId, skinName: skin.name }
         })
       ]);
 

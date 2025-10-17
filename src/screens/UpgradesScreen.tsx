@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { db } from '../db';
+import { id } from '@instantdb/react';
 import { UPGRADES, getUpgradeCost } from '../config/upgrades';
 import './UpgradesScreen.css';
 
@@ -85,8 +86,20 @@ const UpgradesScreen = ({ userId }: UpgradesScreenProps) => {
           break;
       }
 
+      const activityId = id();
+
       await db.transact([
-        db.tx.users[userId].update(updates)
+        db.tx.users[userId].update(updates),
+        // Log activity - will be added when schema is pushed
+        // @ts-ignore - activities entity will exist after schema update
+        db.tx.activities[activityId].update({
+          userId: userId,
+          type: 'upgrade',
+          description: `Upgraded ${upgrade.name} to Level ${newLevel}`,
+          amount: -cost,
+          timestamp: Date.now(),
+          metadata: { upgradeId: upgradeId, upgradeName: upgrade.name, newLevel: newLevel }
+        })
       ]);
 
       // Haptic success feedback

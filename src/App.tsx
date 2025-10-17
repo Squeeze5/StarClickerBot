@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { db } from './db';
 import MainScreen from './screens/MainScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -7,6 +7,7 @@ import UpgradesScreen from './screens/UpgradesScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import './App.css';
 import { id } from '@instantdb/react';
+import { calculateAutoClickerRate } from './config/upgrades';
 
 // Declare Telegram WebApp type
 declare global {
@@ -26,6 +27,10 @@ function App() {
   const [telegramId, setTelegramId] = useState<number>(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Auto-clicker state (global - works in all tabs)
+  const [autoClickerLevel, setAutoClickerLevel] = useState(0);
+  const autoClickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   // Query for existing user by telegramId (only when telegramId is set)
   const { data: userData } = db.useQuery({
     users: {
@@ -36,6 +41,61 @@ function App() {
       }
     }
   });
+
+  // Query for current user data to get auto-clicker level
+  const { data: currentUserData } = db.useQuery({
+    users: userId ? {
+      $: {
+        where: { id: userId }
+      }
+    } : {}
+  });
+
+  // Update auto-clicker level when user data changes
+  useEffect(() => {
+    if (currentUserData?.users && currentUserData.users.length > 0) {
+      const user = currentUserData.users[0];
+      setAutoClickerLevel(user.autoClickerLevel || 0);
+    }
+  }, [currentUserData]);
+
+  // Global auto-clicker effect (works in all tabs)
+  useEffect(() => {
+    if (!userId || autoClickerLevel === 0) {
+      if (autoClickerRef.current) {
+        clearInterval(autoClickerRef.current);
+        autoClickerRef.current = null;
+      }
+      return;
+    }
+
+    const starsPerSecond = calculateAutoClickerRate(autoClickerLevel);
+
+    // Clear existing interval
+    if (autoClickerRef.current) {
+      clearInterval(autoClickerRef.current);
+    }
+
+    // Auto-clicker runs every second
+    autoClickerRef.current = setInterval(async () => {
+      try {
+        // Increment balance directly - InstantDB handles the race conditions
+        await db.transact([
+          db.tx.users[userId].update({
+            balance: db.tx.users[userId].balance + starsPerSecond
+          })
+        ]);
+      } catch (error) {
+        console.error('Auto-clicker error:', error);
+      }
+    }, 1000);
+
+    return () => {
+      if (autoClickerRef.current) {
+        clearInterval(autoClickerRef.current);
+      }
+    };
+  }, [userId, autoClickerLevel]);
 
   useEffect(() => {
     // Initialize Telegram WebApp
