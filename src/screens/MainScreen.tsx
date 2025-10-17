@@ -238,7 +238,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
               transition={{ duration: 1, ease: 'easeOut' }}
             >
               <span className="particle-value">+{particle.value}</span>
-              <img src="/icons/star.png" alt="" className="particle-star-icon" />
+              <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="" className="particle-star-icon" />
             </motion.div>
           ))}
         </AnimatePresence>

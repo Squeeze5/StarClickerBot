@@ -120,7 +120,8 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
               className="skin-image"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling!.style.display = 'block';
+                const nextEl = e.currentTarget.nextElementSibling as HTMLElement;
+                if (nextEl) nextEl.style.display = 'block';
               }}
             />
           ) : null}
@@ -163,7 +164,7 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
             >
               {purchasing === skin.id ? 'Purchasing...' : (
                 <>
-                  <img src="/icons/star.png" alt="Star" className="button-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
+                  <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Star" className="button-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
                   <span className="button-star">⭐</span>
                   {skin.cost.toLocaleString()}
                 </>
@@ -180,7 +181,7 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
       <div className="skins-header">
         <h2 className="skins-title">Skins</h2>
         <div className="balance-display">
-          <img src="/icons/star.png" alt="Balance" className="balance-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
+          <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Balance" className="balance-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
           <span className="balance-emoji">⭐</span>
           <span className="balance-amount">{Math.floor(balance).toLocaleString()}</span>
         </div>

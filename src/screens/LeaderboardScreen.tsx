@@ -72,7 +72,7 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
             className={`sort-button ${sortBy === 'balance' ? 'active' : ''}`}
             onClick={() => setSortBy('balance')}
           >
-            <img src="/icons/money-bag.png" alt="Stars" className="sort-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
+            <img src={`${import.meta.env.BASE_URL}icons/money-bag.png`} alt="Stars" className="sort-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
             <span className="sort-emoji">⭐</span>
             Stars
           </button>
@@ -118,12 +118,13 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
                     className="user-avatar"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling!.style.display = 'flex';
+                      const nextEl = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (nextEl) nextEl.style.display = 'flex';
                     }}
                   />
                 ) : null}
                 <div className="user-avatar-placeholder" style={{ display: user.photoUrl ? 'none' : 'flex' }}>
-                  <img src="/icons/user.png" alt="User" onError={(e) => e.currentTarget.textContent = '👤'} />
+                  <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="User" onError={(e) => e.currentTarget.textContent = '👤'} />
                 </div>
                 <div className="user-info">
                   <div className="user-name">
@@ -139,7 +140,7 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
               <div className="entry-stats">
                 {sortBy === 'balance' ? (
                   <>
-                    <img src="/icons/star.png" alt="Stars" className="stat-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Stars" className="stat-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
                     <span className="stat-emoji">⭐</span>
                     <span className="stat-value">{formatNumber(user.balance || 0)}</span>
                   </>

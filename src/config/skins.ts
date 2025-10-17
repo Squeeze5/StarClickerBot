@@ -21,11 +21,11 @@ export const SKINS: Record<string, Skin> = {
     id: 'default',
     name: 'Classic Star',
     description: 'The original yellow star',
-    icon: '/icons/star.png',
+    icon: `${import.meta.env.BASE_URL}icons/star.png`,
     cost: 0,
     isDefault: true,
     emoji: '⭐',
-    imageUrl: '/icons/star.png',
+    imageUrl: `${import.meta.env.BASE_URL}icons/star.png`,
     glow: 'rgba(255, 214, 10, 0.5)'
   },
 
@@ -33,10 +33,10 @@ export const SKINS: Record<string, Skin> = {
     id: 'pumpkin',
     name: 'Pumpkin Star',
     description: 'Spooky Halloween-themed star',
-    icon: '/icons/pumpkin-star.png',
+    icon: `${import.meta.env.BASE_URL}icons/pumpkin-star.png`,
     cost: 10000,
     emoji: '🎃',
-    imageUrl: '/icons/pumpkin-star.png',
+    imageUrl: `${import.meta.env.BASE_URL}icons/pumpkin-star.png`,
     glow: 'rgba(255, 140, 0, 0.5)'
   },
 
@@ -45,7 +45,7 @@ export const SKINS: Record<string, Skin> = {
     id: 'gold',
     name: 'Golden Star',
     description: 'Luxurious golden star',
-    icon: '/icons/star.png',
+    icon: `${import.meta.env.BASE_URL}icons/star.png`,
     cost: 25000,
     emoji: '🌟',
     glow: 'rgba(255, 215, 0, 0.6)'
@@ -55,7 +55,7 @@ export const SKINS: Record<string, Skin> = {
     id: 'rainbow',
     name: 'Rainbow Star',
     description: 'Colorful rainbow star',
-    icon: '/icons/star.png',
+    icon: `${import.meta.env.BASE_URL}icons/star.png`,
     cost: 50000,
     emoji: '🌈',
     glow: 'rgba(138, 43, 226, 0.5)'

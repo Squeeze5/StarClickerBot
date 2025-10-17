@@ -228,7 +228,7 @@ function App() {
           className={`nav-item ${currentScreen === 'main' ? 'active' : ''}`}
           onClick={() => handleNavClick('main')}
         >
-          <img src="/icons/star.png" alt="Main" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Main" className="nav-icon-img" />
           <span className="nav-label">Main</span>
         </button>
 
@@ -236,7 +236,7 @@ function App() {
           className={`nav-item ${currentScreen === 'upgrades' ? 'active' : ''}`}
           onClick={() => handleNavClick('upgrades')}
         >
-          <img src="/icons/money-bag.png" alt="Upgrades" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/money-bag.png`} alt="Upgrades" className="nav-icon-img" />
           <span className="nav-label">Upgrades</span>
         </button>
 
@@ -244,7 +244,7 @@ function App() {
           className={`nav-item ${currentScreen === 'skins' ? 'active' : ''}`}
           onClick={() => handleNavClick('skins')}
         >
-          <img src="/icons/pumpkin-star.png" alt="Skins" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/pumpkin-star.png`} alt="Skins" className="nav-icon-img" />
           <span className="nav-label">Skins</span>
         </button>
 
@@ -252,7 +252,7 @@ function App() {
           className={`nav-item ${currentScreen === 'leaderboard' ? 'active' : ''}`}
           onClick={() => handleNavClick('leaderboard')}
         >
-          <img src="/icons/friends.png" alt="Leaderboard" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/friends.png`} alt="Leaderboard" className="nav-icon-img" />
           <span className="nav-label">Leaders</span>
         </button>
 
@@ -260,7 +260,7 @@ function App() {
           className={`nav-item ${currentScreen === 'earn' ? 'active' : ''}`}
           onClick={() => handleNavClick('earn')}
         >
-          <img src="/icons/gift.png" alt="Earn" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/gift.png`} alt="Earn" className="nav-icon-img" />
           <span className="nav-label">Earn</span>
         </button>
 
@@ -268,7 +268,7 @@ function App() {
           className={`nav-item ${currentScreen === 'profile' ? 'active' : ''}`}
           onClick={() => handleNavClick('profile')}
         >
-          <img src="/icons/user.png" alt="Profile" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Profile" className="nav-icon-img" />
           <span className="nav-label">Profile</span>
         </button>
       </nav>
