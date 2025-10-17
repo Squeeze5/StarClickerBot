@@ -14,7 +14,11 @@ interface LeaderboardEntry {
   balance: number;
   totalClicks: number;
   photoUrl?: string;
+  telegramId?: number;
 }
+
+// Dev user IDs
+const DEV_USER_IDS = [1374545438, 1104357455];
 
 const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -72,8 +76,7 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
             className={`sort-button ${sortBy === 'balance' ? 'active' : ''}`}
             onClick={() => setSortBy('balance')}
           >
-            <img src={`${import.meta.env.BASE_URL}icons/money-bag.png`} alt="Stars" className="sort-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
-            <span className="sort-emoji">⭐</span>
+            <img src={`${import.meta.env.BASE_URL}icons/money-bag.png`} alt="Stars" className="sort-icon" />
             Stars
           </button>
           <button
@@ -96,11 +99,12 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
         {leaderboard.slice(0, 100).map((user, index) => {
           const rank = index + 1;
           const isCurrentUser = user.id === userId;
+          const isDev = DEV_USER_IDS.includes(user.telegramId || 0);
 
           return (
             <div
               key={user.id}
-              className={`leaderboard-entry ${isCurrentUser ? 'current-user' : ''} ${rank <= 3 ? 'top-three' : ''}`}
+              className={`leaderboard-entry ${isCurrentUser ? 'current-user' : ''} ${isDev ? 'dev-user' : ''} ${rank <= 3 ? 'top-three' : ''}`}
             >
               <div className="entry-rank">
                 {rank <= 3 ? (
@@ -130,6 +134,7 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
                   <div className="user-name">
                     {user.firstName} {user.lastName}
                     {isCurrentUser && <span className="you-badge">You</span>}
+                    {isDev && <span className="dev-badge">Dev</span>}
                   </div>
                   {user.username && (
                     <div className="user-username">@{user.username}</div>
@@ -140,8 +145,7 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
               <div className="entry-stats">
                 {sortBy === 'balance' ? (
                   <>
-                    <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Stars" className="stat-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
-                    <span className="stat-emoji">⭐</span>
+                    <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Stars" className="stat-icon" />
                     <span className="stat-value">{formatNumber(user.balance || 0)}</span>
                   </>
                 ) : (

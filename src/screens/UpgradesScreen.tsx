@@ -160,8 +160,7 @@ const UpgradesScreen = ({ userId }: UpgradesScreenProps) => {
             >
               {purchasing === upgradeId ? 'Purchasing...' : (
                 <>
-                  <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Star" className="button-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
-                  <span className="button-star">⭐</span>
+                  <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Star" className="button-icon" />
                   {cost.toLocaleString()}
                 </>
               )}
@@ -177,8 +176,7 @@ const UpgradesScreen = ({ userId }: UpgradesScreenProps) => {
       <div className="upgrades-header">
         <h2 className="upgrades-title">Upgrades</h2>
         <div className="balance-display">
-          <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Balance" className="balance-icon" onError={(e) => e.currentTarget.style.display = 'none'} />
-          <span className="balance-emoji">⭐</span>
+          <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Balance" className="balance-icon" />
           <span className="balance-amount">{Math.floor(balance).toLocaleString()}</span>
         </div>
       </div>

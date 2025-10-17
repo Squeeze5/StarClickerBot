@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../db';
-import { id } from '@instantdb/react';
 import { calculateClickValue, calculateAutoClickerRate } from '../config/upgrades';
-import { getSkin } from '../config/skins';
+import { SKINS, getSkin, userOwnsSkin, getPurchasableSkins } from '../config/skins';
 import './MainScreen.css';
 
 interface MainScreenProps {
@@ -15,6 +14,8 @@ interface Particle {
   x: number;
   y: number;
   value: number;
+  angle: number; // Random angle for particle direction
+  distance: number; // Random distance for particle travel
 }
 
 const MainScreen = ({ userId }: MainScreenProps) => {
@@ -30,6 +31,8 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
   // Skin state
   const [currentSkin, setCurrentSkin] = useState('default');
+  const [ownedSkins, setOwnedSkins] = useState<string[]>(['default']);
+  const [purchasing, setPurchasing] = useState<string | null>(null);
 
   // Performance optimization: batch updates
   const pendingUpdatesRef = useRef<{balance: number, clicks: number} | null>(null);
@@ -54,6 +57,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
       setMultiplierLevel(user.multiplierLevel || 0);
       setAutoClickerLevel(user.autoClickerLevel || 0);
       setCurrentSkin(user.currentSkin || 'default');
+      setOwnedSkins(user.ownedSkins || ['default']);
     }
   }, [data]);
 
@@ -96,7 +100,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
       clearTimeout(updateTimerRef.current);
     }
 
-    // Schedule update after 500ms of inactivity
+    // Schedule update after 300ms of inactivity (reduced from 500ms for better sync)
     updateTimerRef.current = setTimeout(async () => {
       const updates = pendingUpdatesRef.current;
       if (updates && userId) {
@@ -110,23 +114,59 @@ const MainScreen = ({ userId }: MainScreenProps) => {
           pendingUpdatesRef.current = null;
         } catch (error) {
           console.error('Error saving update:', error);
+          // Retry once after 1 second if failed
+          setTimeout(() => {
+            if (pendingUpdatesRef.current) {
+              db.transact([
+                db.tx.users[userId].update({
+                  balance: pendingUpdatesRef.current.balance,
+                  totalClicks: pendingUpdatesRef.current.clicks
+                })
+              ]).catch(err => console.error('Retry failed:', err));
+            }
+          }, 1000);
         }
       }
-    }, 500);
+    }, 300);
+  }, [userId]);
+
+  // Force sync on tab visibility change or before unload
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && pendingUpdatesRef.current && userId) {
+        // Force immediate sync when tab becomes hidden
+        db.transact([
+          db.tx.users[userId].update({
+            balance: pendingUpdatesRef.current.balance,
+            totalClicks: pendingUpdatesRef.current.clicks
+          })
+        ]).catch(err => console.error('Force sync failed:', err));
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      if (pendingUpdatesRef.current && userId) {
+        // Synchronous last attempt to save
+        navigator.sendBeacon?.('/api/save', JSON.stringify(pendingUpdatesRef.current));
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [userId]);
 
   const handleStarClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!userId) return;
 
-    // Haptic feedback
-    const tg = window.Telegram?.WebApp;
-    if (tg?.HapticFeedback) {
-      try {
-        tg.HapticFeedback.impactOccurred('light');
-      } catch (err) {
-        // Ignore haptic errors
-      }
-    }
+    e.preventDefault(); // Prevent any default behavior
+
+    // Haptic feedback (optimized - no try/catch needed)
+    window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
 
     // Get click position relative to the star container
     const rect = e.currentTarget.getBoundingClientRect();
@@ -136,21 +176,31 @@ const MainScreen = ({ userId }: MainScreenProps) => {
     // Calculate click value
     const clickValue = calculateClickValue(clickPower, multiplierLevel);
 
-    // Create particle at click position
-    const newParticle: Particle = {
-      id: particleId,
-      x,
-      y,
-      value: clickValue
-    };
+    // Create multiple mini particles that fly in different directions
+    const numParticles = 5; // 5 mini stars per click
+    const newParticles: Particle[] = [];
 
-    setParticles(prev => [...prev, newParticle]);
-    setParticleId(prev => prev + 1);
+    for (let i = 0; i < numParticles; i++) {
+      const angle = (Math.random() * 360) * (Math.PI / 180); // Random angle in radians
+      const distance = 60 + Math.random() * 40; // Random distance 60-100px
 
-    // Remove particle after animation
+      newParticles.push({
+        id: particleId + i,
+        x,
+        y,
+        value: i === 0 ? clickValue : 0, // Only first particle shows value
+        angle,
+        distance
+      });
+    }
+
+    setParticles(prev => [...prev, ...newParticles]);
+    setParticleId(prev => prev + numParticles);
+
+    // Remove particles after animation
     setTimeout(() => {
-      setParticles(prev => prev.filter(p => p.id !== newParticle.id));
-    }, 1000);
+      setParticles(prev => prev.filter(p => !newParticles.some(np => np.id === p.id)));
+    }, 800);
 
     // Update balance immediately (optimistic update)
     const newBalance = balance + clickValue;
@@ -161,17 +211,63 @@ const MainScreen = ({ userId }: MainScreenProps) => {
     // Schedule batched database update
     scheduleUpdate(newBalance, newTotalClicks);
 
-    // Log click event (non-blocking)
-    const clickId = id();
-    db.transact([
-      db.tx.clicks[clickId].update({
-        userId: userId,
-        amount: clickValue,
-        timestamp: Date.now()
-      })
-    ]).catch(err => console.error('Error logging click:', err));
+    // REMOVED: Click logging to reduce database load and improve performance
 
   }, [userId, balance, totalClicks, clickPower, multiplierLevel, particleId, scheduleUpdate]);
+
+  // Skin handlers
+  const handleEquip = useCallback(async (skinId: string) => {
+    if (!userOwnsSkin(ownedSkins, skinId) || !userId) return;
+
+    try {
+      await db.transact([
+        db.tx.users[userId].update({
+          currentSkin: skinId
+        })
+      ]);
+      window.Telegram?.WebApp?.HapticFeedback?.selectionChanged();
+    } catch (error) {
+      console.error('Error equipping skin:', error);
+    }
+  }, [ownedSkins, userId]);
+
+  const handlePurchase = useCallback(async (skinId: string) => {
+    if (!userId) return;
+    const skin = getSkin(skinId);
+
+    if (balance < skin.cost) {
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+      return;
+    }
+
+    if (userOwnsSkin(ownedSkins, skinId)) return;
+
+    setPurchasing(skinId);
+
+    try {
+      const newBalance = balance - skin.cost;
+      const newOwnedSkins = [...ownedSkins, skinId];
+
+      await db.transact([
+        db.tx.users[userId].update({
+          balance: newBalance,
+          ownedSkins: newOwnedSkins,
+          currentSkin: skinId
+        })
+      ]);
+
+      setBalance(newBalance);
+      setOwnedSkins(newOwnedSkins);
+      setCurrentSkin(skinId);
+
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+    } catch (error) {
+      console.error('Error purchasing skin:', error);
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+    } finally {
+      setPurchasing(null);
+    }
+  }, [userId, balance, ownedSkins]);
 
   // Get current skin data
   const skin = getSkin(currentSkin);
@@ -197,50 +293,56 @@ const MainScreen = ({ userId }: MainScreenProps) => {
             filter: `drop-shadow(0 4px 20px ${skin.glow || 'rgba(255, 214, 10, 0.4)'})`
           }}
         >
-          {/* Use image if available, fallback to emoji */}
-          {skin.imageUrl ? (
-            <img
-              src={skin.imageUrl}
-              alt={skin.name}
-              className="star-image"
-              onError={(e) => {
-                // Fallback to emoji if image fails to load
-                e.currentTarget.style.display = 'none';
-                const nextEl = e.currentTarget.nextElementSibling as HTMLElement;
-                if (nextEl) nextEl.style.display = 'block';
-              }}
-            />
-          ) : null}
-          <span className="star-emoji" style={{ display: skin.imageUrl ? 'none' : 'block' }}>
-            {skin.emoji}
-          </span>
+          {/* Use image only - no emoji fallback */}
+          <img
+            src={skin.imageUrl || `${import.meta.env.BASE_URL}icons/star.png`}
+            alt={skin.name}
+            className="star-image"
+          />
         </motion.div>
 
-        {/* Particle system */}
+        {/* Particle system - falling mini stars */}
         <AnimatePresence>
-          {particles.map(particle => (
-            <motion.div
-              key={particle.id}
-              className="particle"
-              initial={{
-                opacity: 1,
-                y: 0,
-                x: particle.x - 25,
-                top: particle.y - 15,
-                scale: 1
-              }}
-              animate={{
-                opacity: 0,
-                y: -100,
-                scale: 1.2
-              }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-            >
-              <span className="particle-value">+{particle.value}</span>
-              <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="" className="particle-star-icon" />
-            </motion.div>
-          ))}
+          {particles.map(particle => {
+            const endX = particle.x + Math.cos(particle.angle) * particle.distance;
+            const endY = particle.y + Math.sin(particle.angle) * particle.distance;
+
+            return (
+              <motion.div
+                key={particle.id}
+                className="particle"
+                initial={{
+                  opacity: 1,
+                  x: particle.x - 10,
+                  y: particle.y - 10,
+                  scale: 1,
+                  rotate: 0
+                }}
+                animate={{
+                  opacity: 0,
+                  x: endX - 10,
+                  y: endY - 10,
+                  scale: 0.3,
+                  rotate: 360
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                style={{ position: 'absolute', pointerEvents: 'none' }}
+              >
+                {particle.value > 0 && (
+                  <span className="particle-value" style={{ position: 'absolute', top: -25, left: -10, whiteSpace: 'nowrap' }}>
+                    +{particle.value}
+                  </span>
+                )}
+                <img
+                  src={`${import.meta.env.BASE_URL}icons/star.png`}
+                  alt=""
+                  className="particle-star-icon"
+                  style={{ width: '20px', height: '20px' }}
+                />
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 
@@ -258,6 +360,70 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
       <div className="bottom-info">
         <p className="tap-hint">Tap the star to earn!</p>
+      </div>
+
+      {/* Skins Section */}
+      <div className="skins-section-main">
+        <div className="skins-header-compact">
+          <h3 className="skins-title-compact">
+            <img src={`${import.meta.env.BASE_URL}icons/artist_palette_3d.png`} alt="Skins" style={{width: '24px', height: '24px', marginRight: '8px'}} />
+            Skins
+          </h3>
+        </div>
+        <div className="skins-grid-compact">
+          {[SKINS.default, ...getPurchasableSkins()].map(skinItem => {
+            const owned = userOwnsSkin(ownedSkins, skinItem.id);
+            const equipped = currentSkin === skinItem.id;
+            const canAfford = balance >= skinItem.cost;
+
+            return (
+              <div
+                key={skinItem.id}
+                className={`skin-card-compact ${equipped ? 'equipped' : ''} ${!owned && !canAfford ? 'locked' : ''}`}
+              >
+                <div className="skin-preview-compact">
+                  <img
+                    src={skinItem.imageUrl || `${import.meta.env.BASE_URL}icons/star.png`}
+                    alt={skinItem.name}
+                    className="skin-image-compact"
+                  />
+                  {equipped && <div className="equipped-badge-compact">✓</div>}
+                </div>
+                <div className="skin-name-compact">{skinItem.name}</div>
+                {skinItem.isDefault ? (
+                  <button
+                    className="skin-button-compact default"
+                    onClick={() => handleEquip(skinItem.id)}
+                    disabled={equipped}
+                  >
+                    {equipped ? 'Equipped' : 'Equip'}
+                  </button>
+                ) : owned ? (
+                  <button
+                    className="skin-button-compact owned"
+                    onClick={() => handleEquip(skinItem.id)}
+                    disabled={equipped}
+                  >
+                    {equipped ? 'Equipped' : 'Equip'}
+                  </button>
+                ) : (
+                  <button
+                    className={`skin-button-compact purchase ${canAfford ? 'can-afford' : 'locked'}`}
+                    onClick={() => handlePurchase(skinItem.id)}
+                    disabled={!canAfford || purchasing === skinItem.id}
+                  >
+                    {purchasing === skinItem.id ? '...' : (
+                      <>
+                        <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Star" style={{width: '14px', height: '14px'}} />
+                        {skinItem.cost >= 1000 ? `${(skinItem.cost/1000).toFixed(0)}K` : skinItem.cost}
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

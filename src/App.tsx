@@ -4,7 +4,6 @@ import MainScreen from './screens/MainScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EarnScreen from './screens/EarnScreen';
 import UpgradesScreen from './screens/UpgradesScreen';
-import SkinsScreen from './screens/SkinsScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import './App.css';
 import { id } from '@instantdb/react';
@@ -18,7 +17,7 @@ declare global {
   }
 }
 
-type Screen = 'main' | 'profile' | 'earn' | 'upgrades' | 'skins' | 'leaderboard';
+type Screen = 'main' | 'profile' | 'earn' | 'upgrades' | 'leaderboard';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('main');
@@ -207,8 +206,6 @@ function App() {
         return <EarnScreen userId={userId} />;
       case 'upgrades':
         return <UpgradesScreen userId={userId} />;
-      case 'skins':
-        return <SkinsScreen userId={userId} />;
       case 'leaderboard':
         return <LeaderboardScreen userId={userId} />;
       default:
@@ -222,8 +219,8 @@ function App() {
         {renderScreen()}
       </div>
 
-      {/* Modern 6-tab navigation with icons */}
-      <nav className="bottom-nav">
+      {/* Modern 5-tab navigation with icons */}
+      <nav className="bottom-nav" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
         <button
           className={`nav-item ${currentScreen === 'main' ? 'active' : ''}`}
           onClick={() => handleNavClick('main')}
@@ -241,18 +238,10 @@ function App() {
         </button>
 
         <button
-          className={`nav-item ${currentScreen === 'skins' ? 'active' : ''}`}
-          onClick={() => handleNavClick('skins')}
-        >
-          <img src={`${import.meta.env.BASE_URL}icons/pumpkin-star.png`} alt="Skins" className="nav-icon-img" />
-          <span className="nav-label">Skins</span>
-        </button>
-
-        <button
           className={`nav-item ${currentScreen === 'leaderboard' ? 'active' : ''}`}
           onClick={() => handleNavClick('leaderboard')}
         >
-          <img src={`${import.meta.env.BASE_URL}icons/friends.png`} alt="Leaderboard" className="nav-icon-img" />
+          <img src={`${import.meta.env.BASE_URL}icons/trophy_3d.png`} alt="Leaderboard" className="nav-icon-img" />
           <span className="nav-label">Leaders</span>
         </button>
 

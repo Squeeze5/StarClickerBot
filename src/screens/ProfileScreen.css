@@ -1,6 +1,7 @@
 .profile-screen {
   padding: 30px 20px;
   min-height: calc(100vh - 80px);
+  background: linear-gradient(180deg, #000000 0%, #1a0a2e 100%);
 }
 
 .profile-header {

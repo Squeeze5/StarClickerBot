@@ -97,6 +97,11 @@
   border-color: rgba(255, 214, 10, 0.5);
 }
 
+.leaderboard-entry.dev-user {
+  background: rgba(0, 150, 255, 0.1);
+  border-color: rgba(0, 150, 255, 0.5);
+}
+
 .leaderboard-entry.top-three {
   background: rgba(255, 214, 10, 0.05);
   border-color: rgba(255, 214, 10, 0.3);
@@ -172,6 +177,15 @@
   padding: 2px 8px;
   background: var(--accent-color);
   color: #000000;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dev-badge {
+  padding: 2px 8px;
+  background: #0096ff;
+  color: #ffffff;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;

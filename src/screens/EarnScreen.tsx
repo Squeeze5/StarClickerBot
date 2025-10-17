@@ -8,6 +8,8 @@ interface EarnScreenProps {
 
 const EarnScreen = ({ userId }: EarnScreenProps) => {
   const [referralCode, setReferralCode] = useState('');
+  const [customCode, setCustomCode] = useState('');
+  const [isEditingCode, setIsEditingCode] = useState(false);
   const [referralLink, setReferralLink] = useState('');
   const [referrals, setReferrals] = useState<any[]>([]);
   const [totalEarned, setTotalEarned] = useState(0);
@@ -66,6 +68,40 @@ const EarnScreen = ({ userId }: EarnScreenProps) => {
     }
   };
 
+  const handleUpdateCode = async () => {
+    if (!customCode.trim() || customCode.trim().length < 4) {
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+      alert('Referral code must be at least 4 characters long');
+      return;
+    }
+
+    // Check if code contains only alphanumeric characters
+    if (!/^[A-Za-z0-9]+$/.test(customCode.trim())) {
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+      alert('Referral code can only contain letters and numbers');
+      return;
+    }
+
+    try {
+      const newCode = customCode.trim().toUpperCase();
+
+      await db.transact([
+        db.tx.users[userId].update({
+          referralCode: newCode
+        })
+      ]);
+
+      setReferralCode(newCode);
+      setIsEditingCode(false);
+      setCustomCode('');
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+    } catch (error) {
+      console.error('Error updating referral code:', error);
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+      alert('Failed to update referral code. It might already be taken.');
+    }
+  };
+
   return (
     <div className="earn-screen">
       <div className="earn-header">
@@ -86,9 +122,45 @@ const EarnScreen = ({ userId }: EarnScreenProps) => {
 
       <div className="referral-section">
         <h3 className="section-title">Your Referral Code</h3>
-        <div className="referral-code-container">
-          <div className="referral-code">{referralCode}</div>
-        </div>
+        {!isEditingCode ? (
+          <div className="referral-code-container">
+            <div className="referral-code">{referralCode}</div>
+            <button
+              className="edit-code-button"
+              onClick={() => {
+                setIsEditingCode(true);
+                setCustomCode(referralCode);
+              }}
+            >
+              Edit
+            </button>
+          </div>
+        ) : (
+          <div className="edit-code-container">
+            <input
+              type="text"
+              className="custom-code-input"
+              value={customCode}
+              onChange={(e) => setCustomCode(e.target.value)}
+              placeholder="Enter custom code"
+              maxLength={20}
+            />
+            <div className="edit-code-buttons">
+              <button className="save-code-button" onClick={handleUpdateCode}>
+                Save
+              </button>
+              <button
+                className="cancel-code-button"
+                onClick={() => {
+                  setIsEditingCode(false);
+                  setCustomCode('');
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="referral-link-container">
           <input
