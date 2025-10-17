@@ -32,12 +32,12 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
 
   useEffect(() => {
     if (data?.users) {
-      // Sort users by selected criteria
+      // Sort users by selected criteria - ensure values are numbers
       const sorted = [...data.users].sort((a, b) => {
         if (sortBy === 'balance') {
-          return (b.balance || 0) - (a.balance || 0);
+          return (Number(b.balance) || 0) - (Number(a.balance) || 0);
         } else {
-          return (b.totalClicks || 0) - (a.totalClicks || 0);
+          return (Number(b.totalClicks) || 0) - (Number(a.totalClicks) || 0);
         }
       });
 
@@ -146,12 +146,12 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
                 {sortBy === 'balance' ? (
                   <>
                     <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Stars" className="stat-icon" />
-                    <span className="stat-value">{formatNumber(user.balance || 0)}</span>
+                    <span className="stat-value">{formatNumber(Number(user.balance) || 0)}</span>
                   </>
                 ) : (
                   <>
                     <span className="stat-emoji">👆</span>
-                    <span className="stat-value">{formatNumber(user.totalClicks || 0)}</span>
+                    <span className="stat-value">{formatNumber(Number(user.totalClicks) || 0)}</span>
                   </>
                 )}
               </div>

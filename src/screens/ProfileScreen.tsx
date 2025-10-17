@@ -81,16 +81,16 @@ const ProfileScreen = ({ userId, telegramUser }: ProfileScreenProps) => {
 
       <div className="stats-container">
         <div className="stat-card">
-          <div className="stat-value">{userData.balance?.toLocaleString() || 0}</div>
+          <div className="stat-value">{(Number(userData.balance) || 0).toLocaleString()}</div>
           <div className="stat-label">Total Stars</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{userData.totalClicks?.toLocaleString() || 0}</div>
+          <div className="stat-value">{(Number(userData.totalClicks) || 0).toLocaleString()}</div>
           <div className="stat-label">Total Clicks</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">
-            {userData.createdAt ? formatDate(userData.createdAt) : 'N/A'}
+            {userData.createdAt ? formatDate(Number(userData.createdAt)) : 'N/A'}
           </div>
           <div className="stat-label">Member Since</div>
         </div>
@@ -123,12 +123,12 @@ const ProfileScreen = ({ userId, telegramUser }: ProfileScreenProps) => {
                     <span className="activity-text">{activity.description}</span>
                     {activity.amount && (
                       <span className={`activity-amount ${amountColor}`}>
-                        {activity.amount > 0 ? '+' : ''}{activity.amount.toLocaleString()} ⭐
+                        {Number(activity.amount) > 0 ? '+' : ''}{(Number(activity.amount) || 0).toLocaleString()} ⭐
                       </span>
                     )}
                   </div>
                   <span className="activity-time">
-                    {formatDate(activity.timestamp)}
+                    {formatDate(Number(activity.timestamp) || Date.now())}
                   </span>
                 </div>
               );

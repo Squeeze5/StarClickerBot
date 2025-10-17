@@ -52,11 +52,12 @@ const MainScreen = ({ userId }: MainScreenProps) => {
   useEffect(() => {
     if (data?.users && data.users.length > 0) {
       const user = data.users[0];
-      setBalance(user.balance || 0);
-      setTotalClicks(user.totalClicks || 0);
-      setClickPower(user.clickPower || 0);
-      setMultiplierLevel(user.multiplierLevel || 0);
-      setAutoClickerLevel(user.autoClickerLevel || 0);
+      // Ensure all values are numbers, not functions
+      setBalance(Number(user.balance) || 0);
+      setTotalClicks(Number(user.totalClicks) || 0);
+      setClickPower(Number(user.clickPower) || 0);
+      setMultiplierLevel(Number(user.multiplierLevel) || 0);
+      setAutoClickerLevel(Number(user.autoClickerLevel) || 0);
       setCurrentSkin(user.currentSkin || 'default');
       setOwnedSkins(user.ownedSkins || ['default']);
     }
@@ -287,11 +288,11 @@ const MainScreen = ({ userId }: MainScreenProps) => {
   return (
     <div className="main-screen">
       <div className="balance-container">
-        <h1 className="balance">{Math.floor(balance).toLocaleString()}</h1>
+        <h1 className="balance">{Math.floor(Number(balance) || 0).toLocaleString()}</h1>
         <p className="balance-label">Stars</p>
         {autoClickerLevel > 0 && (
           <p className="auto-clicker-info">
-            +{calculateAutoClickerRate(autoClickerLevel)}/sec
+            +{calculateAutoClickerRate(Number(autoClickerLevel) || 0)}/sec
           </p>
         )}
       </div>
@@ -361,12 +362,12 @@ const MainScreen = ({ userId }: MainScreenProps) => {
       <div className="stats-bar">
         <div className="stat-item">
           <span className="stat-label">Per Click</span>
-          <span className="stat-value">{calculateClickValue(clickPower, multiplierLevel)}</span>
+          <span className="stat-value">{calculateClickValue(Number(clickPower) || 0, Number(multiplierLevel) || 0)}</span>
         </div>
         <div className="stat-divider" />
         <div className="stat-item">
           <span className="stat-label">Total Clicks</span>
-          <span className="stat-value">{totalClicks.toLocaleString()}</span>
+          <span className="stat-value">{(Number(totalClicks) || 0).toLocaleString()}</span>
         </div>
       </div>
 

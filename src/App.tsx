@@ -55,7 +55,8 @@ function App() {
   useEffect(() => {
     if (currentUserData?.users && currentUserData.users.length > 0) {
       const user = currentUserData.users[0];
-      setAutoClickerLevel(user.autoClickerLevel || 0);
+      // Ensure value is a number, not a function
+      setAutoClickerLevel(Number(user.autoClickerLevel) || 0);
     }
   }, [currentUserData]);
 
@@ -79,12 +80,17 @@ function App() {
     // Auto-clicker runs every second
     autoClickerRef.current = setInterval(async () => {
       try {
-        // Increment balance directly - InstantDB handles the race conditions
-        await db.transact([
-          db.tx.users[userId].update({
-            balance: db.tx.users[userId].balance + starsPerSecond
-          })
-        ]);
+        // Get current balance from the database
+        if (currentUserData?.users && currentUserData.users.length > 0) {
+          const currentBalance = Number(currentUserData.users[0].balance) || 0;
+          const newBalance = currentBalance + starsPerSecond;
+
+          await db.transact([
+            db.tx.users[userId].update({
+              balance: newBalance
+            })
+          ]);
+        }
       } catch (error) {
         console.error('Auto-clicker error:', error);
       }
@@ -95,7 +101,7 @@ function App() {
         clearInterval(autoClickerRef.current);
       }
     };
-  }, [userId, autoClickerLevel]);
+  }, [userId, autoClickerLevel, currentUserData]);
 
   useEffect(() => {
     // Initialize Telegram WebApp

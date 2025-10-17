@@ -27,10 +27,11 @@ const UpgradesScreen = ({ userId }: UpgradesScreenProps) => {
   useEffect(() => {
     if (data?.users && data.users.length > 0) {
       const user = data.users[0];
-      setBalance(user.balance || 0);
-      setClickPower(user.clickPower || 0);
-      setMultiplierLevel(user.multiplierLevel || 0);
-      setAutoClickerLevel(user.autoClickerLevel || 0);
+      // Ensure all values are numbers, not functions
+      setBalance(Number(user.balance) || 0);
+      setClickPower(Number(user.clickPower) || 0);
+      setMultiplierLevel(Number(user.multiplierLevel) || 0);
+      setAutoClickerLevel(Number(user.autoClickerLevel) || 0);
     }
   }, [data]);
 
@@ -190,7 +191,7 @@ const UpgradesScreen = ({ userId }: UpgradesScreenProps) => {
         <h2 className="upgrades-title">Upgrades</h2>
         <div className="balance-display">
           <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Balance" className="balance-icon" />
-          <span className="balance-amount">{Math.floor(balance).toLocaleString()}</span>
+          <span className="balance-amount">{Math.floor(Number(balance) || 0).toLocaleString()}</span>
         </div>
       </div>
 
