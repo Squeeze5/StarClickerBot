@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '../db';
-import { SKINS, getSkin, userOwnsSkin, getPurchasableSkins } from '../config/skins';
+import { id } from '@instantdb/react';
+import { SKINS, getSkin, userOwnsSkin, getSkinCategories } from '../config/skins';
 import './SkinsScreen.css';
 
 interface SkinsScreenProps {
@@ -25,7 +26,7 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
   useEffect(() => {
     if (data?.users && data.users.length > 0) {
       const user = data.users[0];
-      setBalance(user.balance || 0);
+      setBalance(Number(user.balance) || 0);
       setCurrentSkin(user.currentSkin || 'default');
       setOwnedSkins(user.ownedSkins || ['default']);
     }
@@ -41,12 +42,7 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
         })
       ]);
 
-      // Haptic feedback
-      const tg = window.Telegram?.WebApp;
-      if (tg?.HapticFeedback) {
-        tg.HapticFeedback.selectionChanged();
-      }
-
+      window.Telegram?.WebApp?.HapticFeedback?.selectionChanged();
     } catch (error) {
       console.error('Error equipping skin:', error);
     }
@@ -56,47 +52,44 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
     const skin = getSkin(skinId);
 
     if (balance < skin.cost) {
-      // Not enough balance
-      const tg = window.Telegram?.WebApp;
-      if (tg?.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred('error');
-      }
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
       return;
     }
 
-    if (userOwnsSkin(ownedSkins, skinId)) {
-      // Already owned
-      return;
-    }
+    if (userOwnsSkin(ownedSkins, skinId)) return;
 
     setPurchasing(skinId);
 
     try {
       const newBalance = balance - skin.cost;
       const newOwnedSkins = [...ownedSkins, skinId];
+      const activityId = id();
 
       await db.transact([
         db.tx.users[userId].update({
           balance: newBalance,
           ownedSkins: newOwnedSkins,
-          currentSkin: skinId // Auto-equip after purchase
+          currentSkin: skinId
+        }),
+        // @ts-ignore - activities entity exists in schema
+        db.tx.activities[activityId].update({
+          userId: userId,
+          type: 'skin',
+          description: `Purchased ${skin.name}`,
+          amount: -skin.cost,
+          timestamp: Date.now(),
+          metadata: { skinId: skinId, skinName: skin.name }
         })
       ]);
 
-      // Haptic success feedback
-      const tg = window.Telegram?.WebApp;
-      if (tg?.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred('success');
-      }
+      setBalance(newBalance);
+      setOwnedSkins(newOwnedSkins);
+      setCurrentSkin(skinId);
 
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
     } catch (error) {
       console.error('Error purchasing skin:', error);
-
-      // Haptic error feedback
-      const tg = window.Telegram?.WebApp;
-      if (tg?.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred('error');
-      }
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
     } finally {
       setPurchasing(null);
     }
@@ -175,23 +168,39 @@ const SkinsScreen = ({ userId }: SkinsScreenProps) => {
     );
   };
 
+  const categories = getSkinCategories();
+
   return (
     <div className="skins-screen">
       <div className="skins-header">
         <h2 className="skins-title">Skins</h2>
         <div className="balance-display">
           <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Balance" className="balance-icon" />
-          <span className="balance-amount">{Math.floor(balance).toLocaleString()}</span>
+          <span className="balance-amount">{Math.floor(Number(balance) || 0).toLocaleString()}</span>
         </div>
       </div>
 
-      <div className="skins-grid">
-        {/* Show default skin first */}
-        {renderSkinCard(SKINS.default)}
-
-        {/* Show all other skins */}
-        {getPurchasableSkins().map(skin => renderSkinCard(skin))}
+      {/* Default Skin - Always shown first */}
+      <div className="skin-category">
+        <h3 className="category-title">Default Skin</h3>
+        <div className="skins-grid">
+          {renderSkinCard(SKINS.default)}
+        </div>
       </div>
+
+      {/* Categorized Skins */}
+      {categories.map(category => {
+        if (category.skins.length === 0) return null;
+
+        return (
+          <div key={category.name} className="skin-category">
+            <h3 className="category-title">{category.displayName}</h3>
+            <div className="skins-grid">
+              {category.skins.map(skin => renderSkinCard(skin))}
+            </div>
+          </div>
+        );
+      })}
 
       <div className="skins-tip">
         <p>🎨 Customize your clicker with unique skins!</p>

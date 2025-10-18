@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../db';
-import { id } from '@instantdb/react';
 import { calculateClickValue, calculateAutoClickerRate } from '../config/upgrades';
-import { SKINS, getSkin, userOwnsSkin, getPurchasableSkins } from '../config/skins';
+import { getSkin } from '../config/skins';
 import './MainScreen.css';
 
 interface MainScreenProps {
@@ -39,8 +38,6 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
   // Skin state
   const [currentSkin, setCurrentSkin] = useState('default');
-  const [ownedSkins, setOwnedSkins] = useState<string[]>(['default']);
-  const [purchasing, setPurchasing] = useState<string | null>(null);
 
   // Performance optimization: batch updates
   const pendingUpdatesRef = useRef<{balance: number, clicks: number} | null>(null);
@@ -73,7 +70,6 @@ const MainScreen = ({ userId }: MainScreenProps) => {
       setMultiplierLevel(Number(user.multiplierLevel) || 0);
       setAutoClickerLevel(Number(user.autoClickerLevel) || 0);
       setCurrentSkin(user.currentSkin || 'default');
-      setOwnedSkins(user.ownedSkins || ['default']);
     }
   }, [data]);
 
@@ -245,72 +241,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
 
   }, [userId, balance, totalClicks, clickPower, multiplierLevel, particleId, scheduleUpdate]);
 
-  // Skin handlers
-  const handleEquip = useCallback(async (skinId: string) => {
-    if (!userOwnsSkin(ownedSkins, skinId) || !userId) return;
-
-    try {
-      await db.transact([
-        db.tx.users[userId].update({
-          currentSkin: skinId
-        })
-      ]);
-      window.Telegram?.WebApp?.HapticFeedback?.selectionChanged();
-    } catch (error) {
-      console.error('Error equipping skin:', error);
-    }
-  }, [ownedSkins, userId]);
-
-  const handlePurchase = useCallback(async (skinId: string) => {
-    if (!userId) return;
-    const skin = getSkin(skinId);
-
-    if (balance < skin.cost) {
-      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
-      return;
-    }
-
-    if (userOwnsSkin(ownedSkins, skinId)) return;
-
-    setPurchasing(skinId);
-
-    try {
-      const newBalance = balance - skin.cost;
-      const newOwnedSkins = [...ownedSkins, skinId];
-      const activityId = id();
-
-      await db.transact([
-        db.tx.users[userId].update({
-          balance: newBalance,
-          ownedSkins: newOwnedSkins,
-          currentSkin: skinId
-        }),
-        // Log activity - will be added when schema is pushed
-        // @ts-ignore - activities entity will exist after schema update
-        db.tx.activities[activityId].update({
-          userId: userId,
-          type: 'skin',
-          description: `Purchased ${skin.name}`,
-          amount: -skin.cost,
-          timestamp: Date.now(),
-          metadata: { skinId: skinId, skinName: skin.name }
-        })
-      ]);
-
-      setBalance(newBalance);
-      setOwnedSkins(newOwnedSkins);
-      setCurrentSkin(skinId);
-
-      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
-    } catch (error) {
-      console.error('Error purchasing skin:', error);
-      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
-    } finally {
-      setPurchasing(null);
-    }
-  }, [userId, balance, ownedSkins]);
-
-  // Get current skin data
+  // Get current skin data for display
   const skin = getSkin(currentSkin);
 
   return (
@@ -432,69 +363,24 @@ const MainScreen = ({ userId }: MainScreenProps) => {
         <p className="tap-hint">Tap the star to earn!</p>
       </div>
 
-      {/* Skins Section */}
-      <div className="skins-section-main">
-        <div className="skins-header-compact">
-          <h3 className="skins-title-compact">
-            <img src={`${import.meta.env.BASE_URL}icons/artist_palette_3d.png`} alt="Skins" style={{width: '24px', height: '24px', marginRight: '8px'}} />
-            Skins
-          </h3>
+      {/* Channel Banner */}
+      <a
+        href="https://t.me/starclickerchannel"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="channel-banner"
+        onClick={(e) => {
+          e.preventDefault();
+          window.Telegram?.WebApp?.openTelegramLink('https://t.me/starclickerchannel');
+        }}
+      >
+        <div className="banner-icon">📢</div>
+        <div className="banner-content">
+          <div className="banner-title">Join Our Channel!</div>
+          <div className="banner-description">Get updates, tips & exclusive rewards</div>
         </div>
-        <div className="skins-grid-compact">
-          {[SKINS.default, ...getPurchasableSkins()].map(skinItem => {
-            const owned = userOwnsSkin(ownedSkins, skinItem.id);
-            const equipped = currentSkin === skinItem.id;
-            const canAfford = balance >= skinItem.cost;
-
-            return (
-              <div
-                key={skinItem.id}
-                className={`skin-card-compact ${equipped ? 'equipped' : ''} ${!owned && !canAfford ? 'locked' : ''}`}
-              >
-                <div className="skin-preview-compact">
-                  <img
-                    src={skinItem.imageUrl || `${import.meta.env.BASE_URL}icons/star.png`}
-                    alt={skinItem.name}
-                    className="skin-image-compact"
-                  />
-                  {equipped && <div className="equipped-badge-compact">✓</div>}
-                </div>
-                <div className="skin-name-compact">{skinItem.name}</div>
-                {skinItem.isDefault ? (
-                  <button
-                    className="skin-button-compact default"
-                    onClick={() => handleEquip(skinItem.id)}
-                    disabled={equipped}
-                  >
-                    {equipped ? 'Equipped' : 'Equip'}
-                  </button>
-                ) : owned ? (
-                  <button
-                    className="skin-button-compact owned"
-                    onClick={() => handleEquip(skinItem.id)}
-                    disabled={equipped}
-                  >
-                    {equipped ? 'Equipped' : 'Equip'}
-                  </button>
-                ) : (
-                  <button
-                    className={`skin-button-compact purchase ${canAfford ? 'can-afford' : 'locked'}`}
-                    onClick={() => handlePurchase(skinItem.id)}
-                    disabled={!canAfford || purchasing === skinItem.id}
-                  >
-                    {purchasing === skinItem.id ? '...' : (
-                      <>
-                        <img src={`${import.meta.env.BASE_URL}icons/star.png`} alt="Star" style={{width: '14px', height: '14px'}} />
-                        {skinItem.cost >= 1000 ? `${(skinItem.cost/1000).toFixed(0)}K` : skinItem.cost}
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+        <div className="banner-arrow">→</div>
+      </a>
     </div>
   );
 };

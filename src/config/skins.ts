@@ -10,6 +10,7 @@ export interface Skin {
   icon: string; // Path to skin preview
   cost: number; // Cost in stars (0 for default)
   isDefault?: boolean;
+  category?: 'basic' | 'event'; // Skin category
   // Visual properties
   emoji?: string; // Fallback emoji if image not available
   imageUrl?: string; // Path to skin image
@@ -35,9 +36,21 @@ export const SKINS: Record<string, Skin> = {
     description: 'Spooky Halloween-themed star',
     icon: `${import.meta.env.BASE_URL}icons/pumpkin-star.png`,
     cost: 10000,
+    category: 'event',
     emoji: '🎃',
     imageUrl: `${import.meta.env.BASE_URL}icons/pumpkin-star.png`,
     glow: 'rgba(255, 140, 0, 0.5)'
+  },
+
+  alien: {
+    id: 'alien',
+    name: 'Alien Star',
+    description: 'Cute alien from outer space',
+    icon: `${import.meta.env.BASE_URL}icons/alien-star.png`,
+    cost: 15000,
+    category: 'event',
+    imageUrl: `${import.meta.env.BASE_URL}icons/alien-star.png`,
+    glow: 'rgba(0, 255, 0, 0.5)'
   },
 
   // Add more skins here as you create them
@@ -47,6 +60,7 @@ export const SKINS: Record<string, Skin> = {
     description: 'Luxurious golden star',
     icon: `${import.meta.env.BASE_URL}icons/star.png`,
     cost: 25000,
+    category: 'basic',
     emoji: '🌟',
     glow: 'rgba(255, 215, 0, 0.6)'
   },
@@ -57,6 +71,7 @@ export const SKINS: Record<string, Skin> = {
     description: 'Colorful rainbow star',
     icon: `${import.meta.env.BASE_URL}icons/star.png`,
     cost: 50000,
+    category: 'basic',
     emoji: '🌈',
     glow: 'rgba(138, 43, 226, 0.5)'
   }
@@ -81,4 +96,29 @@ export function userOwnsSkin(ownedSkins: string[], skinId: string): boolean {
  */
 export function getPurchasableSkins(): Skin[] {
   return Object.values(SKINS).filter(skin => !skin.isDefault);
+}
+
+/**
+ * Get skins by category
+ */
+export function getSkinsByCategory(category: 'basic' | 'event'): Skin[] {
+  return Object.values(SKINS).filter(skin => skin.category === category);
+}
+
+/**
+ * Get all skin categories
+ */
+export function getSkinCategories(): Array<{name: string, displayName: string, skins: Skin[]}> {
+  return [
+    {
+      name: 'event',
+      displayName: 'Event Skins',
+      skins: getSkinsByCategory('event')
+    },
+    {
+      name: 'basic',
+      displayName: 'Basic Skins',
+      skins: getSkinsByCategory('basic')
+    }
+  ];
 }

@@ -38,6 +38,10 @@ const _schema = i.schema({
       // Skins (optional to support existing users)
       currentSkin: i.string().optional(),                       // Currently equipped skin ID
       ownedSkins: i.json().optional(),                          // Array of owned skin IDs
+      // VIP Subscription (optional to support existing users)
+      hasVip: i.boolean().optional(),                           // Whether user has active VIP
+      vipExpiryDate: i.number().optional(),                     // Unix timestamp when VIP expires
+      daysBeforePaying: i.number().optional(),                  // Days remaining before next payment
     }),
 
     /**

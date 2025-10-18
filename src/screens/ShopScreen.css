@@ -1,0 +1,211 @@
+.shop-screen {
+  padding: 30px 20px;
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(180deg, #000000 0%, #1a0a2e 100%);
+}
+
+.shop-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.shop-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+}
+
+.shop-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.vip-card {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 24px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.15);
+}
+
+.vip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.vip-badge {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #000;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.vip-price {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.vip-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.vip-description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.vip-benefits {
+  margin-bottom: 28px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.benefit-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.benefit-item:first-child {
+  padding-top: 0;
+}
+
+.benefit-icon {
+  font-size: 24px;
+  width: 32px;
+  text-align: center;
+}
+
+.benefit-text {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.vip-button {
+  width: 100%;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border: none;
+  border-radius: 16px;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vip-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 3px 10px rgba(255, 215, 0, 0.4);
+}
+
+.vip-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vip-button.renew {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.vip-active {
+  text-align: center;
+}
+
+.vip-status-badge {
+  background: linear-gradient(135deg, #51cf66 0%, #69db7c 100%);
+  color: #000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(81, 207, 102, 0.4);
+}
+
+.status-icon {
+  font-size: 18px;
+}
+
+.vip-expiry {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.vip-expiry strong {
+  color: var(--accent-color);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.expiry-date {
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 4px;
+}
+
+.shop-note {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.shop-note p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.shop-note strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 400px) {
+  .vip-card {
+    padding: 20px;
+  }
+
+  .vip-title {
+    font-size: 20px;
+  }
+
+  .vip-price {
+    font-size: 24px;
+  }
+}

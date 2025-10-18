@@ -15,6 +15,7 @@ interface LeaderboardEntry {
   totalClicks: number;
   photoUrl?: string;
   telegramId?: number;
+  hasVip?: boolean;
 }
 
 // Dev user IDs
@@ -100,11 +101,12 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
           const rank = index + 1;
           const isCurrentUser = user.id === userId;
           const isDev = DEV_USER_IDS.includes(user.telegramId || 0);
+          const isVip = user.hasVip || false;
 
           return (
             <div
               key={user.id}
-              className={`leaderboard-entry ${isCurrentUser ? 'current-user' : ''} ${isDev ? 'dev-user' : ''} ${rank <= 3 ? 'top-three' : ''}`}
+              className={`leaderboard-entry ${isCurrentUser ? 'current-user' : ''} ${isDev ? 'dev-user' : ''} ${isVip ? 'vip-user' : ''} ${rank <= 3 && !isDev ? 'top-three' : ''}`}
             >
               <div className="entry-rank">
                 {rank <= 3 ? (
@@ -133,8 +135,9 @@ const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
                 <div className="user-info">
                   <div className="user-name">
                     {user.firstName} {user.lastName}
-                    {isCurrentUser && <span className="you-badge">You</span>}
+                    {isCurrentUser && <span className="me-badge">Me</span>}
                     {isDev && <span className="dev-badge">Dev</span>}
+                    {isVip && !isDev && <span className="vip-badge">VIP</span>}
                   </div>
                   {user.username && (
                     <div className="user-username">@{user.username}</div>

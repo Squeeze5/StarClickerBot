@@ -22,11 +22,22 @@
   margin: 0;
 }
 
+.skin-category {
+  margin-bottom: 32px;
+}
+
+.category-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
 .skins-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
-  margin-bottom: 20px;
 }
 
 .skin-card {

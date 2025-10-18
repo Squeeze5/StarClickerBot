@@ -93,13 +93,18 @@
 }
 
 .leaderboard-entry.current-user {
-  background: rgba(255, 214, 10, 0.1);
-  border-color: rgba(255, 214, 10, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.8);
 }
 
 .leaderboard-entry.dev-user {
   background: rgba(0, 150, 255, 0.1);
   border-color: rgba(0, 150, 255, 0.5);
+}
+
+.leaderboard-entry.vip-user {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
 .leaderboard-entry.top-three {
@@ -173,13 +178,14 @@
   gap: 8px;
 }
 
-.you-badge {
+.me-badge {
   padding: 2px 8px;
-  background: var(--accent-color);
+  background: rgba(255, 255, 255, 0.9);
   color: #000000;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
+  margin-left: 6px;
 }
 
 .dev-badge {
@@ -189,6 +195,18 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
+  margin-left: 6px;
+}
+
+.vip-badge {
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #000000;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 6px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
 }
 
 .user-username {

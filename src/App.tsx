@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { db } from './db';
 import MainScreen from './screens/MainScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import EarnScreen from './screens/EarnScreen';
+import ShopScreen from './screens/ShopScreen';
+import SkinsScreen from './screens/SkinsScreen';
 import UpgradesScreen from './screens/UpgradesScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import './App.css';
@@ -18,7 +19,7 @@ declare global {
   }
 }
 
-type Screen = 'main' | 'profile' | 'earn' | 'upgrades' | 'leaderboard';
+type Screen = 'main' | 'profile' | 'shop' | 'skins' | 'upgrades' | 'leaderboard';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('main');
@@ -220,19 +221,41 @@ function App() {
     try {
       console.log('Processing referral with code:', referrerCode);
 
-      // Store the referral code in the referral record
-      // The actual bonus will be awarded by checking this later
+      // Find the user with this referral code
+      const { data: referrerData } = await db.queryOnce({
+        users: {
+          $: {
+            where: {
+              referralCode: referrerCode
+            },
+            limit: 1
+          }
+        }
+      });
+
+      if (!referrerData?.users || referrerData.users.length === 0) {
+        console.log('Referrer not found with code:', referrerCode);
+        return;
+      }
+
+      const referrer = referrerData.users[0];
       const referralId = id();
+
+      // Create referral record and award bonus to referrer
       await db.transact([
         db.tx.referrals[referralId].update({
-          referrerId: referrerCode, // Store code here, will resolve to user ID later
+          referrerId: referrer.id, // Store user ID, not code
           referredUserId: newUserId,
           reward: 100,
           timestamp: Date.now()
+        }),
+        // Award 100 stars to the referrer
+        db.tx.users[referrer.id].update({
+          balance: (Number(referrer.balance) || 0) + 100
         })
       ]);
 
-      console.log('Referral recorded! Bot will process the bonus.');
+      console.log('Referral bonus awarded! Referrer:', referrer.id, 'New user:', newUserId);
     } catch (error) {
       console.error('Error recording referral:', error);
     }
@@ -268,8 +291,10 @@ function App() {
         return <MainScreen userId={userId} />;
       case 'profile':
         return <ProfileScreen userId={userId} telegramUser={telegramUser} />;
-      case 'earn':
-        return <EarnScreen userId={userId} />;
+      case 'shop':
+        return <ShopScreen userId={userId} />;
+      case 'skins':
+        return <SkinsScreen userId={userId} />;
       case 'upgrades':
         return <UpgradesScreen userId={userId} />;
       case 'leaderboard':
@@ -285,8 +310,8 @@ function App() {
         {renderScreen()}
       </div>
 
-      {/* Modern 5-tab navigation with icons */}
-      <nav className="bottom-nav" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+      {/* Modern 6-tab navigation with icons */}
+      <nav className="bottom-nav" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
         <button
           className={`nav-item ${currentScreen === 'main' ? 'active' : ''}`}
           onClick={() => handleNavClick('main')}
@@ -312,11 +337,19 @@ function App() {
         </button>
 
         <button
-          className={`nav-item ${currentScreen === 'earn' ? 'active' : ''}`}
-          onClick={() => handleNavClick('earn')}
+          className={`nav-item ${currentScreen === 'shop' ? 'active' : ''}`}
+          onClick={() => handleNavClick('shop')}
         >
-          <img src={`${import.meta.env.BASE_URL}icons/gift.png`} alt="Earn" className="nav-icon-img" />
-          <span className="nav-label">Earn</span>
+          <img src={`${import.meta.env.BASE_URL}icons/money-bag.png`} alt="Shop" className="nav-icon-img" />
+          <span className="nav-label">Shop</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentScreen === 'skins' ? 'active' : ''}`}
+          onClick={() => handleNavClick('skins')}
+        >
+          <img src={`${import.meta.env.BASE_URL}icons/artist_palette_3d.png`} alt="Skins" className="nav-icon-img" />
+          <span className="nav-label">Skins</span>
         </button>
 
         <button
