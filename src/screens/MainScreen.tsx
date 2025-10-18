@@ -172,6 +172,21 @@ const MainScreen = ({ userId }: MainScreenProps) => {
     };
   }, [userId]);
 
+  // Get particle color based on current skin
+  const getParticleColor = useCallback((skinId: string): string => {
+    switch (skinId) {
+      case 'pumpkin':
+        return '#ff8c00'; // Orange
+      case 'alien':
+        return '#32cd32'; // Lime
+      case 'default':
+      case 'golden':
+      case 'rainbow':
+      default:
+        return '#ffd700'; // Yellow/Gold
+    }
+  }, []);
+
   const handleStarClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!userId) return;
 
@@ -307,41 +322,42 @@ const MainScreen = ({ userId }: MainScreenProps) => {
           ))}
         </AnimatePresence>
 
-        {/* Particle system - animated mini stars only */}
+        {/* Particle system - animated colored circles */}
         <AnimatePresence>
           {particles.map(particle => {
             const endX = particle.x + Math.cos(particle.angle) * particle.distance;
             const endY = particle.y + Math.sin(particle.angle) * particle.distance;
+            const particleColor = getParticleColor(currentSkin);
 
             return (
               <motion.div
                 key={`particle-${particle.id}`}
-                className="particle"
+                className="particle-circle"
                 initial={{
                   opacity: 1,
-                  x: particle.x - 10,
-                  y: particle.y - 10,
-                  scale: 1,
-                  rotate: 0
+                  x: particle.x,
+                  y: particle.y,
+                  scale: 1
                 }}
                 animate={{
                   opacity: 0,
-                  x: endX - 10,
-                  y: endY - 10,
-                  scale: 0.3,
-                  rotate: 360
+                  x: endX,
+                  y: endY,
+                  scale: 0.3
                 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
-                style={{ position: 'absolute', pointerEvents: 'none' }}
-              >
-                <img
-                  src={`${import.meta.env.BASE_URL}icons/star.png`}
-                  alt=""
-                  className="particle-star-icon"
-                  style={{ width: '20px', height: '20px' }}
-                />
-              </motion.div>
+                style={{
+                  position: 'absolute',
+                  pointerEvents: 'none',
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: particleColor,
+                  boxShadow: `0 0 8px ${particleColor}`,
+                  transform: 'translate(-50%, -50%)'
+                }}
+              />
             );
           })}
         </AnimatePresence>
@@ -374,7 +390,9 @@ const MainScreen = ({ userId }: MainScreenProps) => {
           window.Telegram?.WebApp?.openTelegramLink('https://t.me/starclickerchannel');
         }}
       >
-        <div className="banner-icon">📢</div>
+        <div className="banner-icon">
+          <img src={`${import.meta.env.BASE_URL}icons/loudspeaker_3d.png`} alt="Loudspeaker" />
+        </div>
         <div className="banner-content">
           <div className="banner-title">Join Our Channel!</div>
           <div className="banner-description">Get updates, tips & exclusive rewards</div>

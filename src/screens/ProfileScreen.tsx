@@ -293,23 +293,25 @@ const ProfileScreen = ({ userId, telegramUser }: ProfileScreenProps) => {
           <div className="activity-list">
             {activities.map((activity, index) => {
               // Determine icon based on activity type
-              let icon = '📝';
+              let iconSrc = `${import.meta.env.BASE_URL}icons/memo.png`;
               let amountColor = '';
 
               if (activity.type === 'upgrade') {
-                icon = '⬆️';
+                iconSrc = `${import.meta.env.BASE_URL}icons/up_arrow_3d.png`;
                 amountColor = 'expense';
               } else if (activity.type === 'skin') {
-                icon = '🎨';
+                iconSrc = `${import.meta.env.BASE_URL}icons/artist_palette_3d.png`;
                 amountColor = 'expense';
               } else if (activity.type === 'referral') {
-                icon = '🎁';
+                iconSrc = `${import.meta.env.BASE_URL}icons/gift.png`;
                 amountColor = 'income';
               }
 
               return (
                 <div key={activity.id || index} className="activity-item">
-                  <span className="activity-icon">{icon}</span>
+                  <div className="activity-icon">
+                    <img src={iconSrc} alt="" />
+                  </div>
                   <div className="activity-details">
                     <span className="activity-text">{activity.description}</span>
                     {activity.amount && (
