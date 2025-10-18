@@ -18,7 +18,7 @@ interface LeaderboardEntry {
 }
 
 // Dev user IDs
-const DEV_USER_IDS = [1374545438, 1104357455];
+const DEV_USER_IDS = [1374545438, 1104357455, 1497163923];
 
 const LeaderboardScreen = ({ userId }: LeaderboardScreenProps) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
