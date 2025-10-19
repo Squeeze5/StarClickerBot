@@ -327,8 +327,8 @@ const MainScreen = ({ userId }: MainScreenProps) => {
           {particles.map(particle => {
             const particleSize = 12;
             const halfSize = particleSize / 2;
-            const endX = particle.x + Math.cos(particle.angle) * particle.distance;
-            const endY = particle.y + Math.sin(particle.angle) * particle.distance;
+            const offsetX = Math.cos(particle.angle) * particle.distance;
+            const offsetY = Math.sin(particle.angle) * particle.distance;
             const particleColor = getParticleColor(currentSkin);
 
             return (
@@ -337,20 +337,22 @@ const MainScreen = ({ userId }: MainScreenProps) => {
                 className="particle-circle"
                 initial={{
                   opacity: 1,
-                  x: particle.x - halfSize,
-                  y: particle.y - halfSize,
+                  x: 0,
+                  y: 0,
                   scale: 1
                 }}
                 animate={{
                   opacity: 0,
-                  x: endX - halfSize,
-                  y: endY - halfSize,
+                  x: offsetX,
+                  y: offsetY,
                   scale: 0.3
                 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
                 style={{
                   position: 'absolute',
+                  left: `${particle.x - halfSize}px`,
+                  top: `${particle.y - halfSize}px`,
                   pointerEvents: 'none',
                   width: `${particleSize}px`,
                   height: `${particleSize}px`,
