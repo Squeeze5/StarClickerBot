@@ -325,6 +325,8 @@ const MainScreen = ({ userId }: MainScreenProps) => {
         {/* Particle system - animated colored circles */}
         <AnimatePresence>
           {particles.map(particle => {
+            const particleSize = 12;
+            const halfSize = particleSize / 2;
             const endX = particle.x + Math.cos(particle.angle) * particle.distance;
             const endY = particle.y + Math.sin(particle.angle) * particle.distance;
             const particleColor = getParticleColor(currentSkin);
@@ -335,14 +337,14 @@ const MainScreen = ({ userId }: MainScreenProps) => {
                 className="particle-circle"
                 initial={{
                   opacity: 1,
-                  x: particle.x,
-                  y: particle.y,
+                  x: particle.x - halfSize,
+                  y: particle.y - halfSize,
                   scale: 1
                 }}
                 animate={{
                   opacity: 0,
-                  x: endX,
-                  y: endY,
+                  x: endX - halfSize,
+                  y: endY - halfSize,
                   scale: 0.3
                 }}
                 exit={{ opacity: 0 }}
@@ -350,12 +352,11 @@ const MainScreen = ({ userId }: MainScreenProps) => {
                 style={{
                   position: 'absolute',
                   pointerEvents: 'none',
-                  width: '12px',
-                  height: '12px',
+                  width: `${particleSize}px`,
+                  height: `${particleSize}px`,
                   borderRadius: '50%',
                   backgroundColor: particleColor,
-                  boxShadow: `0 0 8px ${particleColor}`,
-                  transform: 'translate(-50%, -50%)'
+                  boxShadow: `0 0 8px ${particleColor}`
                 }}
               />
             );
