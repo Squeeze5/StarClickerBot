@@ -17,18 +17,10 @@ interface Particle {
   distance: number; // Random distance for particle travel
 }
 
-interface FloatingNumber {
-  id: number;
-  x: number;
-  y: number;
-  value: number;
-}
-
 const MainScreen = ({ userId }: MainScreenProps) => {
   const [balance, setBalance] = useState(0);
   const [totalClicks, setTotalClicks] = useState(0);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [floatingNumbers, setFloatingNumbers] = useState<FloatingNumber[]>([]);
   const [particleId, setParticleId] = useState(0);
 
   // Upgrade states
@@ -203,21 +195,6 @@ const MainScreen = ({ userId }: MainScreenProps) => {
     // Calculate click value
     const clickValue = calculateClickValue(clickPower, multiplierLevel);
 
-    // Create a static floating number at click position
-    const floatingNumber: FloatingNumber = {
-      id: particleId,
-      x,
-      y,
-      value: clickValue
-    };
-
-    setFloatingNumbers(prev => [...prev, floatingNumber]);
-
-    // Remove floating number after fade out
-    setTimeout(() => {
-      setFloatingNumbers(prev => prev.filter(fn => fn.id !== floatingNumber.id));
-    }, 1000);
-
     // Create multiple mini particles that fly in different directions
     const numParticles = 5; // 5 mini stars per click
     const newParticles: Particle[] = [];
@@ -288,39 +265,7 @@ const MainScreen = ({ userId }: MainScreenProps) => {
           />
         </motion.div>
 
-        {/* Floating numbers - static position, fade out */}
-        <AnimatePresence>
-          {floatingNumbers.map(num => (
-            <motion.div
-              key={`num-${num.id}`}
-              className="floating-number"
-              initial={{
-                opacity: 1,
-                x: num.x,
-                y: num.y - 30,
-                scale: 1
-              }}
-              animate={{
-                opacity: 0,
-                y: num.y - 60,
-                scale: 1.2
-              }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-              style={{
-                position: 'absolute',
-                pointerEvents: 'none',
-                color: '#ffd700',
-                fontWeight: 'bold',
-                fontSize: '24px',
-                textShadow: '0 0 10px rgba(255, 215, 0, 0.8)',
-                zIndex: 100
-              }}
-            >
-              +{num.value}
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {/* Floating numbers removed - showing only particles now */}
 
         {/* Particle system - animated colored circles */}
         <AnimatePresence>

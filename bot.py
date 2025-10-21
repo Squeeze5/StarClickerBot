@@ -10,13 +10,15 @@ This bot handles:
 
 import os
 import logging
+import time
 from dotenv import load_dotenv
-from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice
 from telegram.ext import (
     Application,
     CommandHandler,
     ContextTypes,
     MessageHandler,
+    PreCheckoutQueryHandler,
     filters,
 )
 import requests
@@ -303,6 +305,109 @@ async def check_referrals(context: ContextTypes.DEFAULT_TYPE) -> None:
     db.process_pending_referrals()
 
 
+async def vip_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /vip command - send invoice for VIP purchase"""
+    user = update.effective_user
+
+    # Get user from database
+    user_data = db.get_user_by_telegram_id(user.id)
+    if not user_data:
+        await update.message.reply_text(
+            "Please start the bot first using /start"
+        )
+        return
+
+    # Create invoice
+    title = "VIP Subscription"
+    description = "Get 30 days of VIP access with exclusive benefits!"
+    payload = f"vip_30days_{user_data['id']}"
+    currency = "XTR"  # Telegram Stars
+    prices = [LabeledPrice("VIP Subscription (30 days)", 199)]
+
+    await update.message.reply_invoice(
+        title=title,
+        description=description,
+        payload=payload,
+        provider_token="",  # Empty for Telegram Stars
+        currency=currency,
+        prices=prices,
+        photo_url=f"{WEBAPP_URL}/icons/vip-badge.png",
+        photo_size=512,
+        photo_width=512,
+        photo_height=512,
+    )
+
+
+async def precheckout_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle pre-checkout query - must respond within 10 seconds"""
+    query = update.pre_checkout_query
+
+    # Verify the payload format
+    if query.invoice_payload.startswith('vip_30days_'):
+        # Payment is valid
+        await query.answer(ok=True)
+        logger.info(f"Pre-checkout approved for user {query.from_user.id}")
+    else:
+        # Payment is invalid
+        await query.answer(ok=False, error_message="Invalid payment request")
+        logger.warning(f"Pre-checkout rejected for user {query.from_user.id}")
+
+
+async def successful_payment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle successful payment - activate VIP"""
+    user = update.effective_user
+    payment = update.message.successful_payment
+
+    logger.info(f"Payment successful! User: {user.id}, Amount: {payment.total_amount} XTR")
+
+    # Extract user ID from payload
+    payload = payment.invoice_payload
+    if not payload.startswith('vip_30days_'):
+        logger.error(f"Invalid payload format: {payload}")
+        return
+
+    user_id = payload.replace('vip_30days_', '')
+
+    # Activate VIP for 30 days
+    try:
+        now = int(time.time() * 1000)  # Current time in milliseconds
+        expiry_date = now + (30 * 24 * 60 * 60 * 1000)  # 30 days from now
+
+        transactions = [{
+            "users": {
+                user_id: {
+                    "hasVip": True,
+                    "vipExpiryDate": expiry_date,
+                    "daysBeforePaying": 30
+                }
+            }
+        }]
+
+        result = db.transact(transactions)
+
+        if result:
+            await update.message.reply_text(
+                "🌟 VIP activated successfully!\n\n"
+                "You now have:\n"
+                "✨ VIP badge in leaderboard\n"
+                "🎨 Access to exclusive skins\n"
+                "⚡ 2x click multiplier bonus\n"
+                "🏆 Priority support\n\n"
+                "Your VIP will expire in 30 days. Enjoy! 🎉"
+            )
+            logger.info(f"VIP activated for user {user_id}")
+        else:
+            logger.error(f"Failed to activate VIP for user {user_id}")
+            await update.message.reply_text(
+                "There was an error activating your VIP. Please contact support."
+            )
+    except Exception as e:
+        logger.error(f"Error activating VIP: {e}")
+        await update.message.reply_text(
+            "There was an error activating your VIP. Please contact support."
+        )
+
+
 def main() -> None:
     """Start the bot"""
     if not BOT_TOKEN:
@@ -316,6 +421,11 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("stats", stats_command))
+    application.add_handler(CommandHandler("vip", vip_command))
+
+    # Register payment handlers
+    application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
+    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback))
 
     # Register error handler
     application.add_error_handler(error_handler)
