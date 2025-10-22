@@ -65,7 +65,7 @@ class InstantDBClient:
             response = requests.post(
                 url,
                 headers=self.headers,
-                json=query_obj
+                json={"query": query_obj}
             )
             response.raise_for_status()
             result = response.json()
