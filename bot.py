@@ -53,22 +53,19 @@ class InstantDBClient:
         self.admin_token = admin_token
         self.headers = {
             "Authorization": f"Bearer {admin_token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "app-id": app_id
         }
 
     def query(self, query_obj: dict):
         """Execute a query on InstantDB"""
         try:
             url = "https://api.instantdb.com/admin/query"
-            payload = {
-                "app-id": self.app_id,
-                "query": query_obj
-            }
-            logger.info(f"Sending query to {url} with payload: {payload}")
+            logger.info(f"Sending query to {url} with query: {query_obj}")
             response = requests.post(
                 url,
                 headers=self.headers,
-                json=payload
+                json=query_obj
             )
             response.raise_for_status()
             result = response.json()
@@ -88,15 +85,11 @@ class InstantDBClient:
         """Execute transactions on InstantDB"""
         try:
             url = "https://api.instantdb.com/admin/transact"
-            payload = {
-                "app-id": self.app_id,
-                "steps": transactions
-            }
-            logger.info(f"Sending transaction to {url} with payload: {payload}")
+            logger.info(f"Sending transaction to {url} with steps: {transactions}")
             response = requests.post(
                 url,
                 headers=self.headers,
-                json=payload
+                json={"steps": transactions}
             )
             response.raise_for_status()
             result = response.json()
