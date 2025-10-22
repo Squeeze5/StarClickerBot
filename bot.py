@@ -51,7 +51,6 @@ class InstantDBClient:
     def __init__(self, app_id: str, admin_token: str):
         self.app_id = app_id
         self.admin_token = admin_token
-        self.base_url = f"https://api.instantdb.com/admin/apps/{app_id}"
         self.headers = {
             "Authorization": f"Bearer {admin_token}",
             "Content-Type": "application/json"
@@ -60,13 +59,27 @@ class InstantDBClient:
     def query(self, query_obj: dict):
         """Execute a query on InstantDB"""
         try:
+            url = "https://api.instantdb.com/admin/query"
+            payload = {
+                "app-id": self.app_id,
+                "query": query_obj
+            }
+            logger.info(f"Sending query to {url} with payload: {payload}")
             response = requests.post(
-                f"{self.base_url}/query",
+                url,
                 headers=self.headers,
-                json=query_obj
+                json=payload
             )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            logger.info(f"Query successful: {result}")
+            return result
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"InstantDB query HTTP error: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                logger.error(f"Response status: {e.response.status_code}")
+                logger.error(f"Response content: {e.response.text}")
+            return None
         except Exception as e:
             logger.error(f"InstantDB query error: {e}")
             return None
@@ -74,13 +87,27 @@ class InstantDBClient:
     def transact(self, transactions: list):
         """Execute transactions on InstantDB"""
         try:
+            url = "https://api.instantdb.com/admin/transact"
+            payload = {
+                "app-id": self.app_id,
+                "steps": transactions
+            }
+            logger.info(f"Sending transaction to {url} with payload: {payload}")
             response = requests.post(
-                f"{self.base_url}/transact",
+                url,
                 headers=self.headers,
-                json={"tx": transactions}
+                json=payload
             )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            logger.info(f"Transaction successful: {result}")
+            return result
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"InstantDB transact HTTP error: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                logger.error(f"Response status: {e.response.status_code}")
+                logger.error(f"Response content: {e.response.text}")
+            return None
         except Exception as e:
             logger.error(f"InstantDB transact error: {e}")
             return None
@@ -322,7 +349,7 @@ async def vip_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     description = "Get 30 days of VIP access with exclusive benefits!"
     payload = f"vip_30days_{user_data['id']}"
     currency = "XTR"  # Telegram Stars
-    prices = [LabeledPrice("VIP Subscription (30 days)", 199)]
+    prices = [LabeledPrice("VIP Subscription (30 days)", 10)]
 
     await update.message.reply_invoice(
         title=title,

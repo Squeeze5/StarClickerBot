@@ -60,7 +60,7 @@ const ShopScreen = ({ userId }: ShopScreenProps) => {
       '2. Send /vip command to the bot\n' +
       '3. Complete the payment with Telegram Stars\n' +
       '4. Your VIP will be activated automatically!\n\n' +
-      'Price: 199 ⭐ for 30 days'
+      'Price: 10 ⭐ for 30 days'
     );
 
     // Open chat with bot
@@ -86,7 +86,7 @@ const ShopScreen = ({ userId }: ShopScreenProps) => {
       <div className="vip-card">
         <div className="vip-header">
           <div className="vip-badge">VIP</div>
-          <div className="vip-price">199 ⭐</div>
+          <div className="vip-price">10 ⭐</div>
         </div>
 
         <h3 className="vip-title">Premium Membership</h3>
